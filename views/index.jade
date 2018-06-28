@@ -1,0 +1,9 @@
+extends layout
+
+block content
+  h1 Transactions
+  for data in TxResult
+    p From: #{data.from}
+    p BlockNumber: #{data.blockNumber}
+    p Amount: #{data.value}
+    br
