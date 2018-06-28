@@ -34,7 +34,7 @@ app.get('/', function (req, res) {
 		    	if(length > prevLength){
 			    	for (i=0; i < responseObj.result.length; i++){
 			    		// Transactions are in order from newest to oldest
-			    		res.write("Tx Item "+i+": " + responseObj.result[i].blockNumber);
+			    		console.log("Tx Item "+i+": " + responseObj.result[i].blockNumber)
 			    		prevLength = length;
 			    	}
 			    }
