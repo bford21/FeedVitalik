@@ -1,0 +1,160 @@
+ <html>
+ 	<head>
+ 		<title>Feed Vitalik</title>
+ 		<style type="text/css">
+ 			html, body {
+			  width:  100%;
+			  height: 100%;
+			  margin: 0px;
+			}
+ 		</style>
+ 		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+ 	</head>
+
+	<body>
+		<canvas id="canvas"></canvas>
+		<script>
+
+			$("#canvas").prop("width", window.innerWidth).prop("height", window.innerHeight); 
+    		window.addEventListener("keydown", move, false);
+
+			var context = document.getElementById('canvas').getContext("2d");
+			var charX = 500;
+			var charY = 550;
+
+			var ethPos = window.innerHeight;
+			var noOfEth = 40;
+			var fallingEth = [];
+			var fallingEthY = -100;
+
+			var score = 0;
+			var lastAte = 0;
+			var largestAte = 0;
+			var numEthAte = 0;
+
+			var bg = new Image();
+			var vitalikOpenMouth = new Image();
+			var vitalikSmile = new Image();
+			var eth = new Image();
+
+			context.font = "25px Arial";
+
+			bg.src= "Images/bg.png";
+			vitalikOpenMouth.src = "Images/vitalikOpenMouth_Transparent.png";
+			vitalikSmile.src = "Images/vitalikSmile_Transparent.png";
+			
+			vitalikSmile.onload = function() { 
+				context.drawImage(bg, 0, 0, bg.width, bg.height, 0, 0, canvas.width, canvas.height);
+				context.drawImage(vitalikSmile, charX, charY, 120, 262);
+			}
+
+			function move(e) {
+			    switch(e.keyCode) {   	
+			        case 37: // left key pressed
+			            if(charX > 0)
+			            	charX -= 30;
+			            break;
+			        case 39: // right key pressed
+			            if(charX < (canvas.width-110))
+			            	charX += 30;
+			            break;
+			    }   
+			} 
+
+			function drawBg(){
+				context.drawImage(bg, 0, 0, bg.width, bg.height, 0, 0, canvas.width, canvas.height);
+				context.fillText("Score: " + score, 10, 40);
+				context.fillText("Last: " + lastAte, 10, 80);
+				context.fillText("Total: " + numEthAte, 10, 120);
+				context.fillText("Largest: " + largestAte, 10, 160);
+			}
+
+			function recycleEth(i){
+				fallingEth[i].x = randomX();
+				fallingEth[i].y = fallingEthY;
+				fallingEth[i].size = randomSize();
+				fallingEth[i].speed = randomSpeed();
+			}
+
+			function randomX(){
+				return Math.random() * (canvas.width-100);
+			}
+
+			function randomSize(){
+				return Math.floor(Math.random() * 100) + 1;
+			}
+
+			function randomSpeed(){
+				return 3 + Math.random() * 5;
+			}
+
+			function draw(){
+				drawBg();
+
+				// Search thru fallingEth[] for closest (x,y)
+				// If it's within a certain range show mouth opening
+				// If not mouth closed
+
+				// Loops through and moves eth down based on speed
+				for (var i=0; i < noOfEth; i++){
+
+					// Draw Vitalik
+					if (charX+100  > fallingEth[i].x && charX-100 < fallingEth[i].x && charY+100 > fallingEth[i].y && charY-100 < fallingEth[i].y){
+						context.drawImage(vitalikOpenMouth, charX, charY, 120, 262);
+					}
+					else{
+						context.drawImage(vitalikSmile, charX, charY, 120, 262);
+					}
+
+
+					// Eaten? (Within 50px?)
+					if (charX+50  > fallingEth[i].x && charX-50 < fallingEth[i].x && charY+50 > fallingEth[i].y && charY-50 < fallingEth[i].y){
+						recycleEth(i);
+						lastAte = fallingEth[i].size;
+						if(fallingEth[i].size > largestAte){
+							largestAte = fallingEth[i].size;
+						}
+						numEthAte++;
+						score += fallingEth[i].size;
+					}
+
+					// Draw eth based on size
+					if(fallingEth[i].size < 50){
+			        	context.drawImage(fallingEth[i].image, fallingEth[i].x, fallingEth[i].y, 62, 62);
+			        }
+			        else if(fallingEth[i].size > 50 && fallingEth[i].size < 92){
+			        	context.drawImage(fallingEth[i].image, fallingEth[i].x, fallingEth[i].y, 125, 125);
+			        }
+			        else{
+			        	context.drawImage(fallingEth[i].image, fallingEth[i].x, fallingEth[i].y, 250, 250);
+			        }
+
+			        //Set the falling speed
+			        fallingEth[i].y += fallingEth[i].speed; 
+
+			        //Recycle eth after falling off screen		        
+			        if (fallingEth[i].y > canvas.height) 
+				        recycleEth(i);			        
+			        
+			    }
+			}
+
+			setInterval(draw, 36);
+
+			for (var i = 0; i < noOfEth; i++) {
+		        var fallingDr = new Object();
+		        fallingDr["image"] =  new Image();
+		        fallingDr.image.src = "Images/eth.png";
+		        console.log("loaded eth");
+
+		        fallingDr["x"] = randomX();
+		        fallingDr["y"] = fallingEthY;
+		        fallingDr["size"] = randomSize();
+		        fallingDr["speed"] = randomSpeed();
+		           
+		        fallingEth.push(fallingDr);
+	        }
+		</script>
+
+	</body>
+</html>
