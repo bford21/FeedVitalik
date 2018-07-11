@@ -21,12 +21,14 @@
 
 			var context = document.getElementById('canvas').getContext("2d");
 			var charX = 500;
-			var charY = 550;
+			// charY should be dynamic based on size of canvas
+			var charY = canvas.height-300;
+			//var charY = 0;
 
 			var ethPos = window.innerHeight;
 			var noOfEth = 40;
 			var fallingEth = [];
-			var fallingEthY = -100;
+			var fallingEthY = -100; // Account for image size and start from the top
 
 			var score = 0;
 			var lastAte = 0;
@@ -101,6 +103,21 @@
 				return 3 + Math.random() * 5;
 			}
 
+			function checkIfAte(i){
+				if (charX+70  > fallingEth[i].x && charX-70 < fallingEth[i].x && charY+70 > fallingEth[i].y && charY-70 < fallingEth[i].y){
+						
+						recycleEth(i);
+						lastAte = fallingEth[i].size;
+
+						if(fallingEth[i].size > largestAte){
+							largestAte = fallingEth[i].size;
+						}
+
+						numEthAte++;
+						score += fallingEth[i].size;
+					}
+			}
+
 			function draw(){
 				drawBg();
 
@@ -119,17 +136,7 @@
 						context.drawImage(vitalikSmile, charX, charY, 120, 262);
 					}
 
-
-					// Eaten? (Within 50px?)
-					if (charX+50  > fallingEth[i].x && charX-50 < fallingEth[i].x && charY+50 > fallingEth[i].y && charY-50 < fallingEth[i].y){
-						recycleEth(i);
-						lastAte = fallingEth[i].size;
-						if(fallingEth[i].size > largestAte){
-							largestAte = fallingEth[i].size;
-						}
-						numEthAte++;
-						score += fallingEth[i].size;
-					}
+					checkIfAte(i);
 
 					// Draw eth based on size
 					if(fallingEth[i].size < 50){
