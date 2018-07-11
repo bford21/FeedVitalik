@@ -7,12 +7,51 @@
 			  height: 100%;
 			  margin: 0px;
 			}
+			#menu{
+				position: absolute;
+				bottom: 80%;
+  				left: 50;
+			}
  		</style>
- 		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+
+ 		<!--<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>-->
+
+ 		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+		<!-- jQuery library -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+		<!-- Latest compiled JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+		<!-- 8-bit font -->
  		<link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
  	</head>
 
 	<body>
+		<div id="myModal" class="modal fade" role="dialog">
+		  <div class="modal-dialog">
+
+		    <!-- Modal content-->
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal">&times;</button>
+		        <h4 class="modal-title">Vitalik Hunger Board</h4>
+		      </div>
+		      <div class="modal-body">
+		        <h2>Your top scores</h2>
+		        <
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		      </div>
+		    </div>
+
+		  </div>
+		</div>
+
+		<button type="button" class="btn btn-primary btn-lg" id="menu" data-toggle="modal" data-target="#myModal">Menu</button>
 		<canvas id="canvas"></canvas>
 		<script>
 
@@ -23,7 +62,6 @@
 			var charX = 500;
 			// charY should be dynamic based on size of canvas
 			var charY = canvas.height-300;
-			//var charY = 0;
 
 			var ethPos = window.innerHeight;
 			var noOfEth = 40;
@@ -78,7 +116,9 @@
 				context.font = "25px 'Press Start 2P'";
 				context.fillStyle = "red";
 				context.fillText("Score: " + score, 10, 40);
+
 				context.font = "15px 'Press Start 2P'";
+				context.fillStyle = "blue";
 				context.fillText("Last: " + lastAte, 10, 80);
 				context.fillText("Total: " + numEthAte, 10, 100);
 				context.fillText("Largest: " + largestAte, 10, 120);
@@ -103,9 +143,20 @@
 				return 3 + Math.random() * 5;
 			}
 
+			function drawVitalik(){
+				for (var i=0; i < noOfEth; i++){
+					if (charX+100  > fallingEth[i].x && charX-100 < fallingEth[i].x && charY+100 > fallingEth[i].y && charY-100 < fallingEth[i].y){
+						context.drawImage(vitalikOpenMouth, charX, charY, 120, 262);
+						break;
+					}
+					else{
+						context.drawImage(vitalikSmile, charX, charY, 120, 262);
+					}
+				}
+			}
+
 			function checkIfAte(i){
-				if (charX+70  > fallingEth[i].x && charX-70 < fallingEth[i].x && charY+70 > fallingEth[i].y && charY-70 < fallingEth[i].y){
-						
+				if (charX+70  > fallingEth[i].x && charX-80 < fallingEth[i].x && charY+70 > fallingEth[i].y && charY-40 < fallingEth[i].y){
 						recycleEth(i);
 						lastAte = fallingEth[i].size;
 
@@ -120,21 +171,10 @@
 
 			function draw(){
 				drawBg();
+				drawVitalik();
 
-				// Search thru fallingEth[] for closest (x,y)
-				// If it's within a certain range show mouth opening
-				// If not mouth closed
-
-				// Loops through and moves eth down based on speed
+				// Loop through all eth 
 				for (var i=0; i < noOfEth; i++){
-
-					// Draw Vitalik
-					if (charX+100  > fallingEth[i].x && charX-100 < fallingEth[i].x && charY+100 > fallingEth[i].y && charY-100 < fallingEth[i].y){
-						context.drawImage(vitalikOpenMouth, charX, charY, 120, 262);
-					}
-					else{
-						context.drawImage(vitalikSmile, charX, charY, 120, 262);
-					}
 
 					checkIfAte(i);
 
@@ -156,6 +196,7 @@
 			        if (fallingEth[i].y > canvas.height) 
 				        recycleEth(i);	
 
+				    // Drawn last so eth go behind
 				    drawScoreboard();		                
 			    }
 			}
