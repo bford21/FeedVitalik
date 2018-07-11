@@ -9,6 +9,7 @@
 			}
  		</style>
  		<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+ 		<link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
  	</head>
 
 	<body>
@@ -37,8 +38,6 @@
 			var vitalikSmile = new Image();
 			var eth = new Image();
 
-			context.font = "25px Arial";
-
 			bg.src= "Images/bg.png";
 			vitalikOpenMouth.src = "Images/vitalikOpenMouth_Transparent.png";
 			vitalikSmile.src = "Images/vitalikSmile_Transparent.png";
@@ -58,15 +57,29 @@
 			            if(charX < (canvas.width-110))
 			            	charX += 30;
 			            break;
+			        case 65: // a
+			        	if(charX > 0)
+			            	charX -= 30;
+			            break;
+			        case 68: // d
+			            if(charX < (canvas.width-110))
+			            	charX += 30;
+			            break;
 			    }   
 			} 
 
 			function drawBg(){
 				context.drawImage(bg, 0, 0, bg.width, bg.height, 0, 0, canvas.width, canvas.height);
+			}
+
+			function drawScoreboard(){
+				context.font = "25px 'Press Start 2P'";
+				context.fillStyle = "red";
 				context.fillText("Score: " + score, 10, 40);
+				context.font = "15px 'Press Start 2P'";
 				context.fillText("Last: " + lastAte, 10, 80);
-				context.fillText("Total: " + numEthAte, 10, 120);
-				context.fillText("Largest: " + largestAte, 10, 160);
+				context.fillText("Total: " + numEthAte, 10, 100);
+				context.fillText("Largest: " + largestAte, 10, 120);
 			}
 
 			function recycleEth(i){
@@ -134,8 +147,9 @@
 
 			        //Recycle eth after falling off screen		        
 			        if (fallingEth[i].y > canvas.height) 
-				        recycleEth(i);			        
-			        
+				        recycleEth(i);	
+
+				    drawScoreboard();		                
 			    }
 			}
 
