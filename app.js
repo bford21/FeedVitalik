@@ -1,41 +1,47 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const express = require('express')
+var request = require('request');
+var path    = require("path");
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const app = express();
+app.use(express.static(__dirname + '/View'));
+app.use(express.static(__dirname + '/Images'));
 
-var app = express();
+var key = process.env.infuraAPIKey;
+var secret = process.env.infuraAPISecret;
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+// Get most recent block number
+var eth_blockNumber = 'eth_blockNumber';
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+// Get most recent block by number and use array of transactions thats returned
+var eth_getBlockByHash = 'eth_getBlockByHash';
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+var getBlockNumber = 'https://api.infura.io/v1/jsonrpc/mainnet/'+eth_blockNumber+'?token='+key;
+var getBlockByHash = 'https://api.infura.io/v1/jsonrpc/mainnet/'+eth_getBlockByHash+'?token='+key+'&params=["0xb3b20624f8f0f86eb50dd04688409e5cea4bd02d700bf6e79e9384d47d6a5a35",true]';
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+var callAPI = function (url, cb) {
+	//use request to make the external http call to the JSON api
+	request({
+		url: url,
+		json: true
+	}, function (error, response, body) {
+		if (!error && response.statusCode === 200) {
+		  cb(body.result);// Send body/response to callback
+		  console.log(body);
+		}
+	})
+};
+
+app.get('/', (req, res) => {
+  res.sendFile('index.html');
+
+  //var get = function(cb) {
+ // return callAPI(getBlockByHash, cb);
+//};
+
+//res.send(get);
+
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+app.listen(8000, () => {
+  console.log('Example app listening on port 8000!')
 });
-
-module.exports = app;
