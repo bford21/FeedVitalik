@@ -55,7 +55,8 @@ function getLatestBlock(){
 		  // check if block is new
 		  if(body.result != latestBlock){
 		  	latestBlock = body.result;
-		  	console.log("\nLatest Block (HEX):" + latestBlock);
+			  console.log("\nLatest Block (HEX):" + latestBlock);
+			  console.log("\nLatest url: " + latestBlockUrl);
 		  	getBlockByNumber(latestBlock);
 		  }
 		}
@@ -66,7 +67,7 @@ function getLatestBlock(){
 setInterval(function(){getLatestBlock()}, 1000);
 
 app.get('/', (req, res) => {
-	res.send('index.html');
+	res.send('index.html', {'block': 12});
 });
 
 app.listen(8000, () => {
