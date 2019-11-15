@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ApiService } from './api.service';
+import { ApiService } from './services/api.service';
 import { Observable, interval } from 'rxjs';
 
 @Component({
@@ -21,15 +21,6 @@ export class AppComponent implements OnInit {
         this.getLatestBlock();
       }));
 
-      // this.apiService.getLatestBlock().subscribe(response => {
-      //   if (response.result && response.result !== '') {
-      //     if (this.latestBlock !== response.result) {
-      //       console.log('New block');
-      //       this.latestBlock = response.result;
-      //       this.getTransactions(this.latestBlock);
-      //     }
-      //   }
-      // });
     }
 
     getLatestBlock() {
