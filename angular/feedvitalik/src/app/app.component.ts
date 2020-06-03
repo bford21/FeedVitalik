@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from './services/api.service';
 import { Observable, interval } from 'rxjs';
-
+import Web3 from 'web3';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -9,39 +9,35 @@ import { Observable, interval } from 'rxjs';
 })
 export class AppComponent implements OnInit {
   title = 'feedvitalik';
-  latestBlock: string;
+  latestBlock = 0;
   mostRecentTransactions: Array<any>;
+  web3: any;
 
-  constructor(
-    private apiService: ApiService) { }
+  constructor() {}
 
     ngOnInit() {
+      // Project ID
+      this.web3 = new Web3(Web3.givenProvider || new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/'));
 
       const data = interval(5000).subscribe((x => {
-        this.getLatestBlock();
+        this.web3.eth.getBlockNumber().then(result => {
+          if (result > this.latestBlock) {
+            this.latestBlock = result;
+            this.getBlock(result);
+          }
+          console.log(this.latestBlock);
+        },
+        msg => {
+          // reject(msg);
+        });
       }));
 
     }
 
-    getLatestBlock() {
-      return this.apiService.getLatestBlock().subscribe(response => {
-        if (response.result && response.result !== '') {
-          if (this.latestBlock !== response.result) {
-            console.log('New block');
-            this.latestBlock = response.result;
-            this.getTransactions(this.latestBlock);
-          }
-        }
-      });
-    }
-
-    getTransactions(block: any) {
-      this.apiService.getTransactionsByBlockHex(block).subscribe(response => {
-        if (response.result.transactions && response.result.transactions !== []) {
-          this.mostRecentTransactions = response.result.transactions;
-          console.log(this.mostRecentTransactions);
-          console.log(this.mostRecentTransactions.length);
-        }
+    getBlock(block: any) {
+      this.web3.eth.getBlock(block).then(result => {
+        this.mostRecentTransactions = result.transactions;
+        console.log('Transactions: ', this.mostRecentTransactions);
       });
     }
 
