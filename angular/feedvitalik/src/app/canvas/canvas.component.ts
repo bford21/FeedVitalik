@@ -1,7 +1,14 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 
 const vitalikWidth = 90;
 const vitalikHeight = 210;
+
+export enum KEY_CODE {
+  RIGHT_ARROW = 'ArrowRight',
+  LEFT_ARROW = 'ArrowLeft',
+  A = 'a',
+  D = 'd'
+}
 
 @Component({
   selector: 'app-canvas',
@@ -17,6 +24,26 @@ export class CanvasComponent implements OnInit {
   vitalikSmileSrc = '../../assets/Images/vitalikSmile_Transparent.png';
   charX = 100;
   charY = 300;
+  @HostListener('window:keyup', ['$event'])
+  keyEvent(event: KeyboardEvent) {
+    console.log(event);
+
+    if (event.key === KEY_CODE.RIGHT_ARROW || event.key === KEY_CODE.D) {
+      console.log('right');
+      this.moveRight();
+    }
+
+    if (event.key === KEY_CODE.LEFT_ARROW || event.key === KEY_CODE.A) {
+      console.log('left');
+      this.moveLeft();
+    }
+
+    // window.addEventListener('keypress', this.move(), false);
+  }
+
+  move() {
+    console.log('moved');
+  }
 
   ngOnInit() {
     this.context = this.canvas.nativeElement.getContext('2d');
@@ -48,5 +75,20 @@ export class CanvasComponent implements OnInit {
     el.setAttribute('width', w);
     el.setAttribute('height', h);
     this.charY = (style.height() * dpi) - 300;
+  }
+
+  drawVitalik() {
+    this.context.clearImage();
+    this.context.drawImage(this.vitalikSmile, this.charX, this.charY, vitalikWidth, vitalikHeight);
+  }
+
+  moveRight() {
+    this.charX += 10;
+    this.drawVitalik();
+  }
+
+  moveLeft() {
+    this.charX -= 10;
+    this.drawVitalik();
   }
 }
