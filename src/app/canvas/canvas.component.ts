@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild, ElementRef, HostListener } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, NgZone, OnDestroy, HostListener } from '@angular/core';
+import { Eth } from '../models/eth';
 
 const vitalikWidth = 90;
 const vitalikHeight = 210;
@@ -6,6 +7,7 @@ const vitalikHeight = 210;
 export enum KEY_CODE {
   RIGHT_ARROW = 'ArrowRight',
   LEFT_ARROW = 'ArrowLeft',
+  UP_ARROW = 'ArrowUp',
   A = 'a',
   D = 'd'
 }
@@ -15,31 +17,40 @@ export enum KEY_CODE {
   templateUrl: './canvas.component.html',
   styleUrls: ['./canvas.component.scss']
 })
-export class CanvasComponent implements OnInit {
+export class CanvasComponent implements OnInit, OnDestroy {
   @ViewChild('canvas', {static: true}) canvas: ElementRef<HTMLCanvasElement>;
-  constructor() { }
 
-  context;
+  private context: CanvasRenderingContext2D;
   vitalikSmile = new Image();
   vitalikSmileSrc = '../../assets/Images/vitalikSmile_Transparent.png';
-  charX = 500;
-  charY = 300;
-  // @HostListener('window:keyup', ['$event'])
-  // keyEvent(event: KeyboardEvent) {
-  //   console.log(event);
+  vitalikXCoord;
+  vitalikYCoord;
+  groundYCoord = 0;
+  canvasHeight = 0;
+  canvasWidth = 0;
+  requestId;
+  interval;
+  eth: Eth[] = [];
+  jumping = false;
 
-  //   if (event.key === KEY_CODE.RIGHT_ARROW || event.key === KEY_CODE.D) {
-  //     console.log('right');
-  //     this.moveRight();
-  //   }
+  constructor(private ngZone: NgZone) {}
 
-  //   if (event.key === KEY_CODE.LEFT_ARROW || event.key === KEY_CODE.A) {
-  //     console.log('left');
-  //     this.moveLeft();
-  //   }
+  @HostListener('window:keydown', ['$event'])
+  keyEvent(event: KeyboardEvent) {
 
-  //   // window.addEventListener('keypress', this.move(), false);
-  // }
+    if (event.key === KEY_CODE.RIGHT_ARROW || event.key === KEY_CODE.D) {
+      this.moveRight();
+    }
+
+    if (event.key === KEY_CODE.LEFT_ARROW || event.key === KEY_CODE.A) {
+      this.moveLeft();
+    }
+
+    if (event.key === KEY_CODE.UP_ARROW) {
+      // this.jumping = true;
+    }
+
+  }
 
   move() {
     console.log('moved');
@@ -50,13 +61,57 @@ export class CanvasComponent implements OnInit {
     const el = document.getElementById('canvas');
     this.fixDpi(el);
     this.context.imageSmoothingEnabled = false;
-
     this.vitalikSmile.src = this.vitalikSmileSrc;
-    this.vitalikSmile.onload = () => {
-      if (this.vitalikSmile.src.length > 0) {
-        this.context.drawImage(this.vitalikSmile, this.charX, this.charY, vitalikWidth, vitalikHeight);
-      }
-    };
+
+    // Redraw canvas every 10ms
+    this.ngZone.runOutsideAngular(() =>
+      setInterval(() => {
+        this.drawCanvas();
+      }, 500)
+    );
+
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.interval);
+    cancelAnimationFrame(this.requestId);
+  }
+
+  drawCanvas() {
+    this.clearCanvas();
+
+    // if (this.jumping) {
+    //   console.log(this.vitalikYCoord);
+    //   console.log('Ground: ' + this.groundYCoord);
+
+    //   if (this.vitalikYCoord >= (this.groundYCoord - 50)) {
+    //     this.vitalikYCoord -= 5;
+    //     this.jumping = false;
+    //   }
+    // } else if (this.vitalikYCoord < this.groundYCoord) {
+    //   this.vitalikYCoord += 5;
+    // }
+
+    this.context.drawImage(this.vitalikSmile, this.vitalikXCoord, this.vitalikYCoord, vitalikWidth, vitalikHeight);
+    this.requestId = requestAnimationFrame(() => this.drawCanvas);
+  }
+
+  clearCanvas() {
+    this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+  }
+
+  moveRight() {
+    if (this.vitalikXCoord < (this.canvasWidth - 50) ) {
+      this.vitalikXCoord += 10;
+    }
+    this.drawCanvas();
+  }
+
+  moveLeft() {
+    if (this.vitalikXCoord > -50) {
+      this.vitalikXCoord -= 10;
+    }
+    this.drawCanvas();
   }
 
   fixDpi(el) {
@@ -72,24 +127,14 @@ export class CanvasComponent implements OnInit {
 
     const w = (style.width() * dpi).toString();
     const h = (style.height() * dpi).toString();
-    this.charX = (style.width() / 2);
     el.setAttribute('width', w);
     el.setAttribute('height', h);
-    this.charY = (style.height() * dpi) - 300;
-  }
 
-  drawVitalik() {
-    this.context.clearImage();
-    this.context.drawImage(this.vitalikSmile, this.charX, this.charY, vitalikWidth, vitalikHeight);
-  }
-
-  moveRight() {
-    this.charX += 10;
-    this.drawVitalik();
-  }
-
-  moveLeft() {
-    this.charX -= 10;
-    this.drawVitalik();
+    // Set initial starting position for vitalik
+    this.groundYCoord = (style.height() * dpi) - 300;
+    this.vitalikYCoord = this.groundYCoord;
+    this.vitalikXCoord = (style.width() / 2);
+    this.canvasWidth = style.width() * dpi;
+    this.canvasHeight = style.height() * dpi;
   }
 }
