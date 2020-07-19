@@ -22,24 +22,24 @@ export class CanvasComponent implements OnInit {
   context;
   vitalikSmile = new Image();
   vitalikSmileSrc = '../../assets/Images/vitalikSmile_Transparent.png';
-  charX = 100;
+  charX = 500;
   charY = 300;
-  @HostListener('window:keyup', ['$event'])
-  keyEvent(event: KeyboardEvent) {
-    console.log(event);
+  // @HostListener('window:keyup', ['$event'])
+  // keyEvent(event: KeyboardEvent) {
+  //   console.log(event);
 
-    if (event.key === KEY_CODE.RIGHT_ARROW || event.key === KEY_CODE.D) {
-      console.log('right');
-      this.moveRight();
-    }
+  //   if (event.key === KEY_CODE.RIGHT_ARROW || event.key === KEY_CODE.D) {
+  //     console.log('right');
+  //     this.moveRight();
+  //   }
 
-    if (event.key === KEY_CODE.LEFT_ARROW || event.key === KEY_CODE.A) {
-      console.log('left');
-      this.moveLeft();
-    }
+  //   if (event.key === KEY_CODE.LEFT_ARROW || event.key === KEY_CODE.A) {
+  //     console.log('left');
+  //     this.moveLeft();
+  //   }
 
-    // window.addEventListener('keypress', this.move(), false);
-  }
+  //   // window.addEventListener('keypress', this.move(), false);
+  // }
 
   move() {
     console.log('moved');
@@ -72,6 +72,7 @@ export class CanvasComponent implements OnInit {
 
     const w = (style.width() * dpi).toString();
     const h = (style.height() * dpi).toString();
+    this.charX = (style.width() / 2);
     el.setAttribute('width', w);
     el.setAttribute('height', h);
     this.charY = (style.height() * dpi) - 300;

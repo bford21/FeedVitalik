@@ -17,20 +17,20 @@ export class AppComponent implements OnInit {
 
     ngOnInit() {
       // Project ID
-      this.web3 = new Web3(Web3.givenProvider || new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/'));
+      // this.web3 = new Web3(Web3.givenProvider || new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/'));
 
-      const data = interval(5000).subscribe((x => {
-        this.web3.eth.getBlockNumber().then(result => {
-          if (result > this.latestBlock) {
-            this.latestBlock = result;
-            this.getBlock(result);
-          }
-          console.log(this.latestBlock);
-        },
-        msg => {
-          // reject(msg);
-        });
-      }));
+      // const data = interval(5000).subscribe((x => {
+      //   this.web3.eth.getBlockNumber().then(result => {
+      //     if (result > this.latestBlock) {
+      //       this.latestBlock = result;
+      //       this.getBlock(result);
+      //     }
+      //     console.log(this.latestBlock);
+      //   },
+      //   msg => {
+      //     // reject(msg);
+      //   });
+      // }));
 
     }
 

@@ -5,8 +5,7 @@ import { catchError, tap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  // private projectId = process.env.infura_project_id;
-  private projectId = '53c3f91878ef4f2eb75f11b11e9b0c76';
+  private projectId = process.env.infura_project_id;
   private apiUrl = 'https://mainnet.infura.io/v3/' + this.projectId;
 
   httpOptions = {
