@@ -1,9 +1,12 @@
 # FeedVitalik
+
+[![Netlify Status](https://api.netlify.com/api/v1/badges/0f8e328a-7e5e-4e59-b6c5-70ce86e6d290/deploy-status)](https://app.netlify.com/sites/modest-blackwell-6337e3/deploys)
+
 I noticed a trend among most blockchain transaction visualizers out there and that's that they are almost all static. While it's nice to see all the fancy animations fly by on screen there's only so much time a user can spend siting idle. I wanted to create a transaction visualizer for Ethereum that was interactive and would keep people coming back. This led me to think of FeedVitalik.
 
-![alt text](https://github.com/bford21/FeedVitalik/blob/master/menu.PNG)
+![alt text](https://github.com/bford21/FeedVitalik/blob/master/Images/menu.PNG)
 
-![alt text](https://github.com/bford21/FeedVitalik/blob/master/screenshot.PNG)
+![alt text](https://github.com/bford21/FeedVitalik/blob/master/Images/screenshot.PNG)
 
 FeedVitalik is an Ethereum blockchain transaction visualizer with a twist. The ether you see falling from the sky are real time transactions happening on the Ethereum blockchain. The size and value of each ether is determined by the size of the transaction. The speed at which the ether falls is tied to the amount of gas paid for the transactions. Eat the Eth to help feed a starving Vitalik as well as increase your score.
 
