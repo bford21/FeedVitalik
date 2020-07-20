@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, NgZone, OnDestroy, HostListener } from '@angular/core';
 import { Eth } from '../models/eth';
+import Web3 from 'web3';
 
 const vitalikWidth = 90;
 const vitalikHeight = 210;
@@ -8,8 +9,11 @@ export enum KEY_CODE {
   RIGHT_ARROW = 'ArrowRight',
   LEFT_ARROW = 'ArrowLeft',
   UP_ARROW = 'ArrowUp',
+  DOWN_ARROW = 'ArrowDown',
   A = 'a',
-  D = 'd'
+  D = 'd',
+  W = 'w',
+  S = 's'
 }
 
 @Component({
@@ -31,12 +35,17 @@ export class CanvasComponent implements OnInit, OnDestroy {
   requestId;
   interval;
   eth: Eth[] = [];
-  jumping = false;
+
+  web3: any;
 
   constructor(private ngZone: NgZone) {}
 
   @HostListener('window:keydown', ['$event'])
   keyEvent(event: KeyboardEvent) {
+    console.log(event);
+    // if (event.key === KEY_CODE.RIGHT_ARROW && event.key === KEY_CODE.DOWN_ARROW) {
+
+    // }
 
     if (event.key === KEY_CODE.RIGHT_ARROW || event.key === KEY_CODE.D) {
       this.moveRight();
@@ -46,14 +55,16 @@ export class CanvasComponent implements OnInit, OnDestroy {
       this.moveLeft();
     }
 
-    if (event.key === KEY_CODE.UP_ARROW) {
-      // this.jumping = true;
+    if (event.key === KEY_CODE.UP_ARROW || event.key === KEY_CODE.W) {
+      this.moveUp();
     }
 
-  }
+    if (event.key === KEY_CODE.DOWN_ARROW || event.key === KEY_CODE.S) {
+      this.moveDown();
+    }
 
-  move() {
-    console.log('moved');
+
+
   }
 
   ngOnInit() {
@@ -67,8 +78,33 @@ export class CanvasComponent implements OnInit, OnDestroy {
     this.ngZone.runOutsideAngular(() =>
       setInterval(() => {
         this.drawCanvas();
-      }, 500)
+      }, 20)
     );
+
+    this.web3 = new Web3(Web3.givenProvider || new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/'));
+
+    // subscribe to new block headers
+    const subscription = this.web3.eth.subscribe('newBlockHeaders', (error, result) => {
+      if (!error) {
+          console.log(result);
+          this.getBlock(result.number);
+          return;
+      }
+      console.error(error);
+      })
+    .on('connected', (subscriptionId) => {
+      console.log(subscriptionId);
+    })
+    .on('data', (blockHeader) => {
+      console.log('Data: ' + blockHeader);
+    })
+    .on('error', console.error);
+
+    subscription.unsubscribe((error, success) => {
+        if (success) {
+            console.log('Successfully unsubscribed!');
+        }
+    });
 
   }
 
@@ -77,21 +113,32 @@ export class CanvasComponent implements OnInit, OnDestroy {
     cancelAnimationFrame(this.requestId);
   }
 
+  getBlock(block: any) {
+    console.log(block);
+    this.web3.eth.getBlock(block, true).then(result => {
+      console.log('Transactions: ', result.transactions);
+      this.createEth(result.transactions);
+    });
+  }
+
+  createEth(transactions) {
+    transactions.forEach(transaction => {
+      if (transaction.value > 0) {
+        const newEth = new Eth(this.context, transaction, this.canvasWidth);
+        this.eth.push(newEth);
+      }
+    });
+  }
   drawCanvas() {
     this.clearCanvas();
 
-    // if (this.jumping) {
-    //   console.log(this.vitalikYCoord);
-    //   console.log('Ground: ' + this.groundYCoord);
-
-    //   if (this.vitalikYCoord >= (this.groundYCoord - 50)) {
-    //     this.vitalikYCoord -= 5;
-    //     this.jumping = false;
-    //   }
-    // } else if (this.vitalikYCoord < this.groundYCoord) {
-    //   this.vitalikYCoord += 5;
-    // }
-
+    this.eth.forEach((eth, index) => {
+      // Remove eth that have moved off screen
+      if (eth.y > this.canvasHeight) {
+        this.eth.splice(index, 1);
+      }
+      eth.moveDown();
+    });
     this.context.drawImage(this.vitalikSmile, this.vitalikXCoord, this.vitalikYCoord, vitalikWidth, vitalikHeight);
     this.requestId = requestAnimationFrame(() => this.drawCanvas);
   }
@@ -102,16 +149,26 @@ export class CanvasComponent implements OnInit, OnDestroy {
 
   moveRight() {
     if (this.vitalikXCoord < (this.canvasWidth - 50) ) {
-      this.vitalikXCoord += 10;
+      this.vitalikXCoord += 12;
     }
-    this.drawCanvas();
   }
 
   moveLeft() {
     if (this.vitalikXCoord > -50) {
-      this.vitalikXCoord -= 10;
+      this.vitalikXCoord -= 12;
     }
-    this.drawCanvas();
+  }
+
+  moveDown() {
+    if (this.vitalikYCoord < (this.canvasHeight - vitalikHeight)) {
+      this.vitalikYCoord += 10;
+    }
+  }
+
+  moveUp() {
+    if (this.vitalikYCoord > this.groundYCoord) {
+      this.vitalikYCoord -= 10;
+    }
   }
 
   fixDpi(el) {
