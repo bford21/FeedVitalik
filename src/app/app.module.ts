@@ -4,11 +4,13 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CanvasComponent } from './canvas/canvas.component';
+import { MenuComponent } from './menu/menu.component'
 
 @NgModule({
   declarations: [
     AppComponent,
-    CanvasComponent
+    CanvasComponent,
+    MenuComponent
   ],
   imports: [
     BrowserModule,

@@ -75,7 +75,7 @@ export class Eth {
         } else {
             this.speed = this.generateRandom(4.0, 5.0);
         }
-        console.log(this.speed);
+        // console.log(this.speed);
     }
 
     private draw() {
