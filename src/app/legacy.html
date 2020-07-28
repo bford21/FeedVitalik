@@ -1,0 +1,458 @@
+<html>
+ 	<head>
+ 		<title>Feed Vitalik</title>
+ 		<style type="text/css">
+ 			html, body {
+			  width:  100%;
+			  height: 100%;
+			  margin: 0px;
+			}
+			#menu{
+				font-family: 'Press Start 2P';
+				position: absolute;
+				bottom: 82%;
+  				left: 35;		
+			}
+			.music{
+				position: absolute;
+				height: 64;
+				width: 64;
+				right: 0;
+			}
+			#donate{
+				width: 380;
+			}
+
+ 		</style>
+
+ 		<!--<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>-->
+
+ 		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+		<!-- jQuery library -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+		<!-- Latest compiled JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+		<!-- 8-bit font -->
+ 		<link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+ 	</head>
+
+	<body>
+
+		 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		    <div class="modal-dialog">
+		        <div class="modal-content">
+		            <div class="modal-body">
+		                <div id="modalBody" role="tabpanel">
+		                    <!-- Nav tabs -->
+		                    <ul class="nav nav-tabs" role="tablist">
+		                        <li role="presentation" class="active"><a href="#infoTab" aria-controls="infoTab" role="tab" data-toggle="tab" >Info</a>
+		                        </li>
+		                        <li role="presentation"><a href="#scoresTab" aria-controls="scoresTab" role="tab" data-toggle="tab" onclick="populateLeaderboard()">Scores</a>
+		                        </li>
+		                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		                    </ul>
+		                    <!-- Tab panes -->
+		                    <div class="tab-content">
+		                        <div role="tabpanel" class="tab-pane active" id="infoTab">
+		                        	<img id="vitalik" src="menuHeader3.png" class="img-responsive"/>
+		 							<p>FeedVitalik is an Ethereum blockchain transaction visualizer with a twist. The
+		 							Eth you see falling from the sky are real time transactions happening on the Ethereum blockchain.</p>
+
+		 							<p>The size and value of each Eth is determined by the size of the transaction. Eat the Eth to help feed a starving Vitalik as well as increase your score.</p>
+
+		 							<h3>Controls</h3>
+		 							<p>Use your arrow keys to move Vitalik horizontally. (A & D work as well)</p>
+
+		 							<h3>Credits</h3>
+		 							<p>Original inspiration for 8-bit Vitalik found <a href="https://www.teepublic.com/t-shirt/2207901-vitalik-buterin-8-bit">here</a>.</p>
+		 							<p>Recreated using <a href="https://make8bitart.com" >make8bitart.com</a> Thanks <a href="https://twitter.com/jennschiffer">@jennschiffer</a>!</p>
+
+		 							<h3>Support</h3>
+		 							<p> Support FeedVitalik.com by donating Ethereum or Bitcoin to the following address's.</p>
+
+		 							<form>
+									  <div class="input-group">
+									    <span class="input-group-addon">Ethereum</span>
+									    <input class="form-control" type="text" id="donate" readonly="readonly" value="0xdA78E8B96B640D2002fECe59A92f76dE3b049B91">
+									  </div>
+
+									  <br />
+
+									  <div class="input-group">
+									  	<span class="input-group-addon"><i class="glyphicon glyphicon-bitcoin"></i>itcoin</span>
+									    <input class="form-control" type="text" id="donate" readonly="readonly" value="16aaBV4kYpLfbEEnTkNsLLvwvivyDdR9Sq">
+									  </div>
+									  
+									</form>
+		                        </div>
+		                        <div role="tabpanel" class="tab-pane" id="scoresTab">
+		                        	<h2>Local High Scores</h2>
+		                        	<table class="table table-striped">
+									    <thead>
+									      <tr>
+									        <th>Score</th>
+									        <th>Total</th>
+									        <th>Largest</th>
+									        <th>Date</th>
+									      </tr>
+									    </thead>
+									    <tbody>
+									      <tr>
+									      	<td id="score1"></td>
+									        <td id="total1"></td>
+									        <td id="largest1"></td>
+									        <td id="date1"></td>
+									      </tr>
+									      <tr>
+									        <td id="score2"></td>
+									        <td id="total2"></td>
+									        <td id="largest2"></td>
+									        <td id="date2"></td>
+									      </tr>
+									      <tr>
+									        <td id="score3"></td>
+									        <td id="total3"></td>
+									        <td id="largest3"></td>
+									        <td id="date3"></td>
+									      </tr>
+									      <tr>
+									        <td id="score4"></td>
+									        <td id="total4"></td>
+									        <td id="largest4"></td>
+									        <td id="date4"></td>
+									      </tr>
+									      <tr>
+									        <td id="score5"></td>
+									        <td id="total5"></td>
+									        <td id="largest5"></td>
+									        <td id="date5"></td>
+									      </tr>
+									    </tbody>
+									  </table>
+									 <p><a href="#" onclick="clearScores()" />Clear Leaderboard</a></p>
+		                        </div>
+		                    </div>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
+		</div>
+
+		<button type="button" class="btn btn-primary btn-md" id="menu" data-toggle="modal" data-target="#myModal">Menu</button>
+
+		<a href="#" onclick="toggleMusic()">
+			<img class="music" id="musicOn" src="musicOn.png" />
+			<img class="music" id="musicOff" src="musicOff.png" style="visibility:hidden" />
+		</a>
+
+		<canvas id="canvas"></canvas>
+		
+		<script>
+			if (typeof(Storage) !== "undefined") {
+			    // call storeData() every x amount of time
+			    setInterval(storeData, 10000);
+			} else {
+			    // JS Alert that says localStorage is not supported by this browser and scores cannot be saved
+			    alert("HTML5 localStorage is not supported in this browser and scores cannot be saved.");
+			}
+
+			$("#canvas").prop("width", window.innerWidth).prop("height", window.innerHeight); 
+    		window.addEventListener("keydown", move, false);
+    		var sound = new Audio("shortChew.wav"); // buffers automatically when created
+			
+			var context = document.getElementById('canvas').getContext("2d");
+			var charX = 500;
+			// charY should be dynamic based on size of canvas
+			var charY = canvas.height-300;
+			var playSound = true;
+
+			var ethPos = window.innerHeight;
+			var noOfEth = 40;
+			var fallingEth = [];
+			var fallingEthY = -100; // Account for image size and start from the top
+
+			var guid = generateGuid();
+			console.log(guid);
+
+			var date = getDate();
+			console.log(date);
+
+			var score = 0;
+			var lastAte = 0;
+			var largestAte = 0;
+			var numEthAte = 0;
+
+			var bg = new Image();
+			var vitalikOpenMouth = new Image();
+			var vitalikSmile = new Image();
+			var eth = new Image();
+
+			bg.src= "bg.png";
+			vitalikOpenMouth.src = "vitalikOpenMouth_Transparent.png";
+			vitalikSmile.src = "vitalikSmile_Transparent.png";
+			
+			vitalikSmile.onload = function() { 
+				context.drawImage(bg, 0, 0, bg.width, bg.height, 0, 0, canvas.width, canvas.height);
+				context.drawImage(vitalikSmile, charX, charY, 120, 262);
+			}
+
+			function getDate(){
+				// get date and return in format mm-dd-yyyy
+				let today = new Date();
+				let dd = today.getDate();
+
+				let mm = today.getMonth()+1; 
+				const yyyy = today.getFullYear();
+				if(dd<10) 
+				{
+				    dd=`0${dd}`;
+				} 
+
+				if(mm<10) 
+				{
+				    mm=`0${mm}`;
+				} 
+				today = `${mm}-${dd}-${yyyy}`;
+				return today;
+			}
+
+			function storeData(){
+				var data = {
+					'guid': guid,
+					'date': date,
+					'score': score,
+					'total': numEthAte,
+					'largest': largestAte
+				};
+
+				localStorage.setItem(guid, JSON.stringify(data));
+			}
+
+			function dynamicSort(property) {
+			    var sortOrder = 1;
+			    if(property[0] === "-") {
+			        sortOrder = -1;
+			        property = property.substr(1);
+			    }
+			    return function (a,b) {
+			        var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+			        return result * sortOrder;
+			    }
+			}
+
+			function populateLeaderboard(){
+				var allScores = [];
+				var top3 = [{
+					"score": 0
+				}];
+				console.log('Populate Leaderboard');
+
+				// Loop through localStorage and get all objects with score property
+				// Then store in array called allScores
+				for(var i=0; i < localStorage.length; i++){
+					var object = JSON.parse(localStorage.getItem(localStorage.key(i)));
+					
+					if (object.score != undefined){
+						allScores.push(object);
+					}
+				}
+
+				// Sort array by score (Smallest to Largest)
+				allScores.sort(dynamicSort("score"));
+				
+				// Loop through sorted array started at highest and printout top 3
+				var num = 1;
+				for(var i=allScores.length-1; i>allScores.length-6;i--){
+					
+					console.log(allScores[i].score + " - " + allScores[i].largest);
+
+					document.getElementById("score"+num).innerHTML = allScores[i].score
+					document.getElementById("date"+num).innerHTML = allScores[i].date
+					document.getElementById("total"+num).innerHTML = allScores[i].total
+					document.getElementById("largest"+num).innerHTML = allScores[i].largest
+					num++;
+				}
+			}
+
+			function clearScores(){
+				if(window.confirm("Are you sure you want to clear all scores? This cannot be undone.")){
+					console.log("Confirmed - clearing localStorage");
+					localStorage.clear();
+
+					for(var i =1; i < 5; i++){
+						document.getElementById("score"+i).innerHTML = "";
+						document.getElementById("date"+i).innerHTML = ""; 
+						document.getElementById("total"+i).innerHTML = "";
+						document.getElementById("largest"+i).innerHTML = "";
+					}
+				}
+			}
+
+			function generateGuid() {
+			  function s4() {
+			    return Math.floor((1 + Math.random()) * 0x10000)
+			      .toString(16)
+			      .substring(1);
+			  }
+			  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+			}
+
+			function checkSound(){
+				if(playSound){
+					console.log("sound is on playing sound");
+					sound.play()
+				}
+			}
+
+			function toggleMusic(){
+				if(playSound){
+					playSound = false;
+					document.getElementById('musicOn').style.visibility='hidden';
+					document.getElementById('musicOff').style.visibility='visible';
+					console.log("toggled off");
+				}else{
+					playSound = true;
+					document.getElementById('musicOn').style.visibility='visible';
+					document.getElementById('musicOff').style.visibility='hidden';
+					console.log("toggled on");
+				}
+			}
+
+			function move(e) {
+			    switch(e.keyCode) {   	
+			        case 37: // left key pressed
+			            if(charX > 0)
+			            	charX -= 30;
+			            break;
+			        case 39: // right key pressed
+			            if(charX < (canvas.width-110))
+			            	charX += 30;
+			            break;
+			        case 65: // a
+			        	if(charX > 0)
+			            	charX -= 30;
+			            break;
+			        case 68: // d
+			            if(charX < (canvas.width-110))
+			            	charX += 30;
+			            break;
+			    }   
+			} 
+
+			function drawBg(){
+				context.drawImage(bg, 0, 0, bg.width, bg.height, 0, 0, canvas.width, canvas.height);
+			}
+
+			function drawScoreboard(){
+				context.font = "25px 'Press Start 2P'";
+				context.fillStyle = "red";
+				context.fillText("Score: " + score, 10, 40);
+
+				context.font = "15px 'Press Start 2P'";
+				context.fillStyle = "blue";
+				context.fillText("Last: " + lastAte, 10, 80);
+				context.fillText("Total: " + numEthAte, 10, 100);
+				context.fillText("Largest: " + largestAte, 10, 120);
+			}
+
+			function recycleEth(i){
+				fallingEth[i].x = randomX();
+				fallingEth[i].y = fallingEthY;
+				fallingEth[i].size = randomSize();
+				fallingEth[i].speed = randomSpeed();
+			}
+
+			function randomX(){
+				return Math.random() * (canvas.width-100);
+			}
+
+			function randomSize(){
+				return Math.floor(Math.random() * 100) + 1;
+			}
+
+			function randomSpeed(){
+				return 3 + Math.random() * 5;
+			}
+
+			function drawVitalik(){
+				for (var i=0; i < noOfEth; i++){
+					if (charX+100  > fallingEth[i].x && charX-100 < fallingEth[i].x && charY+100 > fallingEth[i].y && charY-100 < fallingEth[i].y){
+						context.drawImage(vitalikOpenMouth, charX, charY, 120, 262);
+						break;
+					}
+					else{
+						context.drawImage(vitalikSmile, charX, charY, 120, 262);
+					}
+				}
+			}
+
+			function checkIfAte(i){
+				if (charX+70  > fallingEth[i].x && charX-80 < fallingEth[i].x && charY+70 > fallingEth[i].y && charY-40 < fallingEth[i].y){
+						checkSound();
+						recycleEth(i);
+						lastAte = fallingEth[i].size;
+
+						if(fallingEth[i].size > largestAte){
+							largestAte = fallingEth[i].size;
+						}
+
+						numEthAte++;
+						score += fallingEth[i].size;
+					}
+			}
+
+			function draw(){
+				drawBg();
+				drawVitalik();
+
+				// Loop through all eth 
+				for (var i=0; i < noOfEth; i++){
+
+					checkIfAte(i);
+
+					// Draw eth based on size
+					if(fallingEth[i].size < 50){
+			        	context.drawImage(fallingEth[i].image, fallingEth[i].x, fallingEth[i].y, 62, 62);
+			        }
+			        else if(fallingEth[i].size > 50 && fallingEth[i].size < 92){
+			        	context.drawImage(fallingEth[i].image, fallingEth[i].x, fallingEth[i].y, 125, 125);
+			        }
+			        else{
+			        	context.drawImage(fallingEth[i].image, fallingEth[i].x, fallingEth[i].y, 250, 250);
+			        }
+
+			        //Set the falling speed
+			        fallingEth[i].y += fallingEth[i].speed; 
+
+			        //Recycle eth after falling off screen		        
+			        if (fallingEth[i].y > canvas.height) 
+				        recycleEth(i);	
+
+				    // Drawn last so eth go behind
+				    drawScoreboard();		                
+			    }
+			}
+
+			setInterval(draw, 36);
+
+			for (var i = 0; i < noOfEth; i++) {
+		        var fallingDr = new Object();
+		        fallingDr["image"] =  new Image();
+		        fallingDr.image.src = "eth.png";
+		        console.log("loaded eth");
+
+		        fallingDr["x"] = randomX();
+		        fallingDr["y"] = fallingEthY;
+		        fallingDr["size"] = randomSize();
+		        fallingDr["speed"] = randomSpeed();
+		           
+		        fallingEth.push(fallingDr);
+	        }
+		</script>
+
+	</body>
+</html>
