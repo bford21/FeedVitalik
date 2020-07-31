@@ -1,11 +1,11 @@
 <div class="bg">
-    <p>Score: {{score}}</p>
-    <p>Last: {{lastEth}}</p>
-    <p>Largest: {{largestEth}}</p>
-    <app-canvas
-        (score)='updateScore($event)'
-        (lastEaten)='updateLast($event)'
-        (largestEaten)='updateLargest($event)'
-    ></app-canvas>
+    <p>Score: {{score}} eth</p>
+    <p>Last: {{lastEth}} eth</p>
+    <p>Largest: {{largestEth}} eth</p>
+    <app-canvas (score)='updateScore($event)'></app-canvas>
 </div>
 <app-menu></app-menu>
+<a href="#" onclick="toggleMusic()">
+    <img class="music" id="musicOn" src="musicOn.png" />
+    <img class="music" id="musicOff" src="musicOff.png" style="visibility:hidden" />
+</a>

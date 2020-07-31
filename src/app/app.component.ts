@@ -13,18 +13,13 @@ export class AppComponent implements OnInit {
   constructor() {}
 
     ngOnInit() {
-
     }
 
     updateScore($event){
-      this.score = $event
-    }
-
-    updateLast($event) {
+      this.score += $event
       this.lastEth = $event;
-    }
-
-    updateLargest($event) {
-      this.largestEth = $event;
+      if($event > this.largestEth) {
+        this.largestEth = $event;
+      }
     }
 }

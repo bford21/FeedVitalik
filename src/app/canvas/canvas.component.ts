@@ -24,9 +24,13 @@ export enum KEY_CODE {
 export class CanvasComponent implements OnInit, OnDestroy {
   @ViewChild('canvas', {static: true}) canvas: ElementRef<HTMLCanvasElement>;
 
+  @Output() score: EventEmitter<any> = new EventEmitter<any>();
+
   private context: CanvasRenderingContext2D;
   vitalikSmile = new Image();
   vitalikSmileSrc = '../../assets/Images/vitalikSmile_Transparent.png';
+  vitalikOpenMouth = new Image();
+  vitalikOpenMouthSrc = '../../assets/Images/vitalikOpenMouth_Transparent.png';
   vitalikXCoord;
   vitalikYCoord;
   groundYCoord = 0;
@@ -35,9 +39,6 @@ export class CanvasComponent implements OnInit, OnDestroy {
   requestId;
   interval;
   eth: Eth[] = [];
-  @Output() score: EventEmitter<any> = new EventEmitter<any>();
-  @Output() lastEaten: EventEmitter<any> = new EventEmitter<any>();
-  @Output() largestEaten: EventEmitter<any> = new EventEmitter<any>();
 
   web3: any;
 
@@ -71,14 +72,16 @@ export class CanvasComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.score.emit(1000);
-    this.lastEaten.emit(2000);
-    this.largestEaten.emit(2523);
+    // this.score.emit(1000);
+    // this.lastEaten.emit(2000);
+    // this.largestEaten.emit(2523);
+
     this.context = this.canvas.nativeElement.getContext('2d');
     const el = document.getElementById('canvas');
     this.fixDpi(el);
     this.context.imageSmoothingEnabled = false;
     this.vitalikSmile.src = this.vitalikSmileSrc;
+    this.vitalikOpenMouth.src = this.vitalikOpenMouthSrc;
 
     // Redraw canvas every 10ms
     this.ngZone.runOutsideAngular(() =>
@@ -137,15 +140,22 @@ export class CanvasComponent implements OnInit, OnDestroy {
   }
   drawCanvas() {
     this.clearCanvas();
-
+    this.context.drawImage(this.vitalikSmile, this.vitalikXCoord, this.vitalikYCoord, vitalikWidth, vitalikHeight);
     this.eth.forEach((eth, index) => {
       // Remove eth that have moved off screen
       if (eth.y > this.canvasHeight) {
         this.eth.splice(index, 1);
       }
+
+      // Check if being eaten
+      if (this.vitalikXCoord+70  > eth.x && this.vitalikXCoord-80 < eth.x && this.vitalikYCoord+70 > eth.y && this.vitalikYCoord-40 < eth.y){
+        // Emit score converting wei to eth
+        this.score.emit(eth.transaction.value / 10**18);
+        this.eth.splice(index, 1);
+        this.context.drawImage(this.vitalikOpenMouth, this.vitalikXCoord, this.vitalikYCoord, vitalikWidth, vitalikHeight);
+      }
       eth.moveDown();
     });
-    this.context.drawImage(this.vitalikSmile, this.vitalikXCoord, this.vitalikYCoord, vitalikWidth, vitalikHeight);
     this.requestId = requestAnimationFrame(() => this.drawCanvas);
   }
 
