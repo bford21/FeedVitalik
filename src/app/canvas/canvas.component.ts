@@ -24,7 +24,7 @@ export enum KEY_CODE {
 export class CanvasComponent implements OnInit, OnDestroy {
   @ViewChild('canvas', {static: true}) canvas: ElementRef<HTMLCanvasElement>;
 
-  @Output() score: EventEmitter<any> = new EventEmitter<any>();
+  @Output() transaction: EventEmitter<any> = new EventEmitter<any>();
 
   private context: CanvasRenderingContext2D;
   vitalikSmile = new Image();
@@ -66,16 +66,9 @@ export class CanvasComponent implements OnInit, OnDestroy {
     if (event.key === KEY_CODE.DOWN_ARROW || event.key === KEY_CODE.S) {
       this.moveDown();
     }
-
-
-
   }
 
   ngOnInit() {
-    // this.score.emit(1000);
-    // this.lastEaten.emit(2000);
-    // this.largestEaten.emit(2523);
-
     this.context = this.canvas.nativeElement.getContext('2d');
     const el = document.getElementById('canvas');
     this.fixDpi(el);
@@ -148,15 +141,27 @@ export class CanvasComponent implements OnInit, OnDestroy {
       }
 
       // Check if being eaten
-      if (this.vitalikXCoord+70  > eth.x && this.vitalikXCoord-80 < eth.x && this.vitalikYCoord+70 > eth.y && this.vitalikYCoord-40 < eth.y){
+      if (this.isEaten(eth)){
         // Emit score converting wei to eth
-        this.score.emit(eth.transaction.value / 10**18);
+        this.transaction.emit(eth.transaction);
         this.eth.splice(index, 1);
         this.context.drawImage(this.vitalikOpenMouth, this.vitalikXCoord, this.vitalikYCoord, vitalikWidth, vitalikHeight);
       }
       eth.moveDown();
     });
     this.requestId = requestAnimationFrame(() => this.drawCanvas);
+  }
+
+  isEaten(eth){
+    if(this.vitalikXCoord+70  > eth.x && this.vitalikXCoord-80 < eth.x && this.vitalikYCoord+70 > eth.y && this.vitalikYCoord-40 < eth.y){
+      return true
+    } else {
+      return false
+    }
+  }
+
+  convertWeiToEth(wei){
+    return wei / 10**18;
   }
 
   clearCanvas() {

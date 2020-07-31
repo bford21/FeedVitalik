@@ -5,9 +5,14 @@
                 <div id="modalBody" role="tabpanel">
                     <!-- Nav tabs -->
                     <ul class="nav nav-tabs" role="tablist">
-                        <li role="presentation" class="active"><a href="#infoTab" aria-controls="infoTab" role="tab" data-toggle="tab" >Info</a>
+                        <li role="presentation" class="active">
+                          <a href="#infoTab" aria-controls="infoTab" role="tab" data-toggle="tab" >Info</a>
                         </li>
-                        <li role="presentation"><a href="#scoresTab" aria-controls="scoresTab" role="tab" data-toggle="tab" onclick="populateLeaderboard()">Scores</a>
+                        <li role="presentation">
+                          <a href="#transactionsTab" aria-controls="transactionsTab" role="tab" data-toggle="tab">Transactions</a>
+                        </li>
+                        <li role="presentation">
+                          <a href="#scoresTab" aria-controls="scoresTab" role="tab" data-toggle="tab" onclick="populateLeaderboard()">Scores</a>
                         </li>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     </ul>
@@ -91,6 +96,9 @@
                               </table>
                              <p><a href="#" onclick="clearScores()" >Clear Leaderboard</a></p>
                         </div>
+                        <div role="tabpanel" class="tab-pane" id="transactionsTab">
+                          <h2>Investigate eaten transactions</h2>
+                      </div>
                     </div>
                 </div>
             </div>

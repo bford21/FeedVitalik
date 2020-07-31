@@ -1,11 +1,13 @@
 <div class="bg">
-    <p>Score: {{score}} eth</p>
-    <p>Last: {{lastEth}} eth</p>
-    <p>Largest: {{largestEth}} eth</p>
-    <app-canvas (score)='updateScore($event)'></app-canvas>
+    <p>Score: {{score.toFixed(4)}} eth</p>
+    <p>Last: {{lastEth.toFixed(4)}} eth</p>
+    <p>Largest: {{largestEth.toFixed(4)}} eth</p>
+    <app-canvas (transaction)='processEatenTransaction($event)'></app-canvas>
 </div>
-<app-menu></app-menu>
-<a href="#" onclick="toggleMusic()">
-    <img class="music" id="musicOn" src="musicOn.png" />
-    <img class="music" id="musicOff" src="musicOff.png" style="visibility:hidden" />
+
+<app-menu [eatenTransactions]="eatenTransactions"></app-menu>
+
+<a href="#" (click)="toggleMusic()">
+    <img class="music" id="musicOn" src="../assets/Images/musicOn.png" width="64" height="64"/>
+    <img class="music" id="musicOff" src="../assets/Images/musicOff.png" style="visibility:hidden" width="64" height="64"/>
 </a>
