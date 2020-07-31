@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, NgZone, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, NgZone, OnDestroy, HostListener, EventEmitter, Output } from '@angular/core';
 import { Eth } from '../models/eth';
 import Web3 from 'web3';
 
@@ -35,6 +35,9 @@ export class CanvasComponent implements OnInit, OnDestroy {
   requestId;
   interval;
   eth: Eth[] = [];
+  @Output() score: EventEmitter<any> = new EventEmitter<any>();
+  @Output() lastEaten: EventEmitter<any> = new EventEmitter<any>();
+  @Output() largestEaten: EventEmitter<any> = new EventEmitter<any>();
 
   web3: any;
 
@@ -68,6 +71,9 @@ export class CanvasComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.score.emit(1000);
+    this.lastEaten.emit(2000);
+    this.largestEaten.emit(2523);
     this.context = this.canvas.nativeElement.getContext('2d');
     const el = document.getElementById('canvas');
     this.fixDpi(el);

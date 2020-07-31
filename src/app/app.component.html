@@ -2,6 +2,10 @@
     <p>Score: {{score}}</p>
     <p>Last: {{lastEth}}</p>
     <p>Largest: {{largestEth}}</p>
-    <app-canvas></app-canvas>
+    <app-canvas
+        (score)='updateScore($event)'
+        (lastEaten)='updateLast($event)'
+        (largestEaten)='updateLargest($event)'
+    ></app-canvas>
 </div>
 <app-menu></app-menu>
