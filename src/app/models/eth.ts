@@ -1,6 +1,6 @@
 export class Eth {
     public x = 0;
-    public y = -10.0;
+    public y = -100.0;
     public transaction: any;
     private width = 100;
     private height = 100;

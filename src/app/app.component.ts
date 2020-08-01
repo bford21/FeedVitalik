@@ -18,12 +18,6 @@ export class AppComponent implements OnInit {
     }
 
     processEatenTransaction($event){
-      const ethValue = this.convertWeiToEth($event.value)
-      this.score += ethValue
-      this.lastEth = ethValue;
-      if(ethValue > this.largestEth) {
-        this.largestEth = ethValue;
-      }
       this.eatenTransactions.push($event)
     }
 
@@ -39,9 +33,5 @@ export class AppComponent implements OnInit {
         document.getElementById('musicOff').style.visibility='hidden';
         console.log("toggled on");
       }
-    }
-
-    convertWeiToEth(wei){
-      return wei / 10**18;
     }
 }
