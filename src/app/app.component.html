@@ -1,12 +1,7 @@
-<div class="bg">
+<div id="bg" class="bg">
     <app-canvas (transaction)='processEatenTransaction($event)'></app-canvas>
 </div>
 
-<app-menu [eatenTransactions]="eatenTransactions"></app-menu>
-
-<a href="#" (click)="toggleMusic()">
-    <img class="music" id="musicOn" src="../assets/Images/musicOn.png" width="64" height="64"/>
-    <img class="music" id="musicOff" src="../assets/Images/musicOff.png" style="visibility:hidden" width="64" height="64"/>
-</a>
+<app-menu [eatenTransactions]="eatenTransactions" (changeSound)='changeSoundSetting($event)'></app-menu>
 
 <p id="version">Beta v0.0.1</p>

@@ -108,7 +108,6 @@ export class CanvasComponent implements OnInit, OnDestroy {
     // subscribe to new block headers
     const subscription = this.web3.eth.subscribe('newBlockHeaders', (error, result) => {
       if (!error) {
-          console.log(result);
           this.getBlock(result.number);
           return;
       }
@@ -138,7 +137,6 @@ export class CanvasComponent implements OnInit, OnDestroy {
   getBlock(block: any) {
     this.latestBlock = block;
     this.web3.eth.getBlock(block, true).then(result => {
-      console.log('Transactions: ', result.transactions);
       this.createEth(result.transactions);
     });
   }

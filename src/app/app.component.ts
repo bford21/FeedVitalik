@@ -5,33 +5,44 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  title = 'feedvitalik';
-  score = 0;
-  lastEth = 0;
-  largestEth = 0;
-  playSound = true;
   eatenTransactions: any = [];
-
+  playsound;
+  sound = new Audio("../assets/shortChew.wav"); // buffers automatically when created
   constructor() {}
 
     ngOnInit() {
+      this.initSettings();
     }
 
     processEatenTransaction($event){
       this.eatenTransactions.push($event)
+      if(this.playsound === true) {
+        this.sound.play()
+      }
     }
 
-    toggleMusic(){
-      if(this.playSound){
-        this.playSound = false;
-        document.getElementById('musicOn').style.visibility='hidden';
-        document.getElementById('musicOff').style.visibility='visible';
-        console.log("toggled off");
-      }else{
-        this.playSound = true;
-        document.getElementById('musicOn').style.visibility='visible';
-        document.getElementById('musicOff').style.visibility='hidden';
-        console.log("toggled on");
+    initSettings() {
+      const settings = JSON.parse(localStorage.getItem('settings'));
+
+      if(settings === null) {
+        this.storeDefaultSettings();
+      } else {
+        this.playsound = settings.sound;
+        document.getElementById('bg').style.backgroundImage = "url('../assets/Images/backgrounds/bg" + settings.background + ".png')"
       }
+    }
+
+    storeDefaultSettings() {
+      var data = {
+        'sound': true,
+        'background': 1,
+      };
+  
+      localStorage.setItem('settings', JSON.stringify(data));
+    }
+
+    changeSoundSetting($event) {
+      console.log('Sound preferences changed to ' + $event)
+      this.playsound = $event;
     }
 }

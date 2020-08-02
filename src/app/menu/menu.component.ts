@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 @Component({
   selector: 'app-menu',
   templateUrl: './menu.component.html',
@@ -6,6 +6,9 @@ import { Component, Input } from '@angular/core';
 })
 export class MenuComponent {
   @Input() eatenTransactions: [];
+  @Output() changeSound: EventEmitter<any> = new EventEmitter<any>();
+  sound;
+  background;
 
   constructor() {}
 
@@ -30,7 +33,6 @@ export class MenuComponent {
     const top3 = [{
       "score": 0
     }];
-    console.log('Populate Leaderboard');
 
     // Loop through localStorage and get all objects with score property
     // Then store in array called allScores
@@ -69,15 +71,45 @@ export class MenuComponent {
 
   clearScores(){
     if(window.confirm("Are you sure you want to clear all scores? This cannot be undone.")){
-      console.log("Confirmed - clearing localStorage");
       localStorage.clear();
+      this.storeSettings();
 
-      for(var i =1; i < 5; i++){
+      for(var i =1; i <= 5; i++){
         document.getElementById("score"+i).innerHTML = "";
         document.getElementById("date"+i).innerHTML = ""; 
-        document.getElementById("total"+i).innerHTML = "";
         document.getElementById("largest"+i).innerHTML = "";
       }
     }
+  }
+
+  readSettings() {
+    const settings = JSON.parse(localStorage.getItem('settings'));
+    this.sound = settings.sound;
+    this.background = settings.background;
+    console.log('Reading setting bg = ' + this.background )
+  }
+
+  setSound(value) {
+    this.sound = value;
+    this.storeSettings();
+    this.changeSound.emit(this.sound)
+  }
+
+  setBackground(value) {
+    this.background = value;
+    this.storeSettings();
+    if(this.background == 1) {
+
+    }
+    document.getElementById('bg').style.backgroundImage = "url('../assets/Images/backgrounds/bg" + this.background + ".png')"
+  }
+
+  storeSettings() {
+    var data = {
+      'sound': this.sound,
+      'background': this.background,
+    };
+
+    localStorage.setItem('settings', JSON.stringify(data));
   }
 }
