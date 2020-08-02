@@ -1,4 +1,7 @@
-<div class="bg">
-    <!-- <h1>Latest Block: </h1> -->
-    <app-canvas></app-canvas>
+<div id="bg" class="bg">
+    <app-canvas (transaction)='processEatenTransaction($event)'></app-canvas>
 </div>
+
+<app-menu [eatenTransactions]="eatenTransactions" (changeSound)='changeSoundSetting($event)'></app-menu>
+
+<p id="version">Beta v0.0.1</p>

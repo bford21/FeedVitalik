@@ -1,6 +1,7 @@
-import { Component, OnInit, ViewChild, ElementRef, NgZone, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, NgZone, OnDestroy, HostListener, EventEmitter, Output } from '@angular/core';
 import { Eth } from '../models/eth';
 import Web3 from 'web3';
+import { formatDate } from '@angular/common';
 
 const vitalikWidth = 90;
 const vitalikHeight = 210;
@@ -19,26 +20,42 @@ export enum KEY_CODE {
 @Component({
   selector: 'app-canvas',
   templateUrl: './canvas.component.html',
-  styleUrls: ['./canvas.component.scss']
+  styleUrls: ['./canvas.component.scss'],
 })
 export class CanvasComponent implements OnInit, OnDestroy {
   @ViewChild('canvas', {static: true}) canvas: ElementRef<HTMLCanvasElement>;
+  @Output() transaction: EventEmitter<any> = new EventEmitter<any>();
 
   private context: CanvasRenderingContext2D;
+
   vitalikSmile = new Image();
   vitalikSmileSrc = '../../assets/Images/vitalikSmile_Transparent.png';
+  vitalikOpenMouth = new Image();
+  vitalikOpenMouthSrc = '../../assets/Images/vitalikOpenMouth_Transparent.png';
   vitalikXCoord;
   vitalikYCoord;
+
   groundYCoord = 0;
   canvasHeight = 0;
   canvasWidth = 0;
   requestId;
   interval;
   eth: Eth[] = [];
-
   web3: any;
 
-  constructor(private ngZone: NgZone) {}
+  // Scoreboard
+  score = 0;
+  largestEth = 0;
+  lastEth = 0
+  latestBlock = 0;
+
+  // Local storage
+  guid = this.generateGuid()
+  date: any;
+
+  constructor(private ngZone: NgZone,) {
+    this.date = formatDate(new Date(), 'yyyy/MM/dd', 'en');
+  }
 
   @HostListener('window:keydown', ['$event'])
   keyEvent(event: KeyboardEvent) {
@@ -62,9 +79,6 @@ export class CanvasComponent implements OnInit, OnDestroy {
     if (event.key === KEY_CODE.DOWN_ARROW || event.key === KEY_CODE.S) {
       this.moveDown();
     }
-
-
-
   }
 
   ngOnInit() {
@@ -73,6 +87,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
     this.fixDpi(el);
     this.context.imageSmoothingEnabled = false;
     this.vitalikSmile.src = this.vitalikSmileSrc;
+    this.vitalikOpenMouth.src = this.vitalikOpenMouthSrc;
 
     // Redraw canvas every 10ms
     this.ngZone.runOutsideAngular(() =>
@@ -80,13 +95,19 @@ export class CanvasComponent implements OnInit, OnDestroy {
         this.drawCanvas();
       }, 20)
     );
+    
+    // Store data in localstorage
+    this.ngZone.runOutsideAngular(() =>
+      setInterval(() => {
+        this.storeData()
+      }, 1000)
+    );
 
     this.web3 = new Web3(Web3.givenProvider || new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/'));
 
     // subscribe to new block headers
     const subscription = this.web3.eth.subscribe('newBlockHeaders', (error, result) => {
       if (!error) {
-          console.log(result);
           this.getBlock(result.number);
           return;
       }
@@ -114,9 +135,8 @@ export class CanvasComponent implements OnInit, OnDestroy {
   }
 
   getBlock(block: any) {
-    console.log(block);
+    this.latestBlock = block;
     this.web3.eth.getBlock(block, true).then(result => {
-      console.log('Transactions: ', result.transactions);
       this.createEth(result.transactions);
     });
   }
@@ -129,18 +149,96 @@ export class CanvasComponent implements OnInit, OnDestroy {
       }
     });
   }
+
   drawCanvas() {
     this.clearCanvas();
+    this.context.drawImage(this.vitalikSmile, this.vitalikXCoord, this.vitalikYCoord, vitalikWidth, vitalikHeight);
 
     this.eth.forEach((eth, index) => {
       // Remove eth that have moved off screen
       if (eth.y > this.canvasHeight) {
         this.eth.splice(index, 1);
       }
+
+      // Check if being eaten
+      if (this.isEaten(eth)){
+        this.processEatenTransaction(eth.transaction)
+        this.eth.splice(index, 1);
+        this.context.drawImage(this.vitalikOpenMouth, this.vitalikXCoord, this.vitalikYCoord, vitalikWidth, vitalikHeight);
+      }
       eth.moveDown();
     });
-    this.context.drawImage(this.vitalikSmile, this.vitalikXCoord, this.vitalikYCoord, vitalikWidth, vitalikHeight);
+
+    if(this.eth.length < 1) {
+      this.drawWaitingForBlock();
+    }
+
+    this.drawScoreboard()
+
     this.requestId = requestAnimationFrame(() => this.drawCanvas);
+  }
+
+  isEaten(eth){
+    if(this.vitalikXCoord+70  > eth.x && this.vitalikXCoord-80 < eth.x && this.vitalikYCoord+70 > eth.y && this.vitalikYCoord-40 < eth.y){
+      return true
+    } else {
+      return false
+    }
+  }
+
+  drawWaitingForBlock() {
+    this.context.font = "15px 'Press Start 2P'";
+    this.context.fillStyle = "blue";
+    this.context.fillText("Waiting for next block to be mined...", (this.canvasWidth / 2) - 200, (this.canvasHeight / 2) - 100);
+  }
+
+  drawScoreboard(){
+    this.context.font = "25px 'Press Start 2P'";
+    this.context.fillStyle = "red";
+    this.context.fillText("Score: " + this.score.toFixed(4) + " eth", 10, 40);
+
+    this.context.font = "15px 'Press Start 2P'";
+    this.context.fillStyle = "blue";
+    this.context.fillText("Last: " + this.lastEth.toFixed(4) + " eth", 10, 80);
+    this.context.fillText("Largest: " + this.largestEth.toFixed(4) + " eth", 10, 105);
+
+    this.context.font = "15px 'Press Start 2P'";
+    this.context.fillStyle = "blue";
+    this.context.fillText("Last Block: #" + this.latestBlock, 10, this.canvasHeight-10);
+  }
+
+  processEatenTransaction(transaction){
+    const ethValue = this.convertWeiToEth(transaction.value)
+    this.score += ethValue
+    this.lastEth = ethValue;
+    if(ethValue > this.largestEth) {
+      this.largestEth = ethValue;
+    }
+    this.transaction.emit(transaction);
+  }
+
+  storeData(){
+    var data = {
+      'guid': this.guid,
+      'date': this.date,
+      'score': this.score,
+      'largest': this.largestEth
+    };
+
+    localStorage.setItem(this.guid, JSON.stringify(data));
+  }
+
+  generateGuid() {
+    function s4() {
+      return Math.floor((1 + Math.random()) * 0x10000)
+        .toString(16)
+        .substring(1);
+    }
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+  }
+
+  convertWeiToEth(wei){
+    return wei / 10**18;
   }
 
   clearCanvas() {

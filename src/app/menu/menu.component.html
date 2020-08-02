@@ -1,0 +1,156 @@
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div id="dialog" class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="modalBody" role="tabpanel">
+                  <!-- Nav tabs -->
+                  <ul class="nav nav-tabs" role="tablist">
+                      <li role="presentation" class="active">
+                        <a href="#infoTab" aria-controls="infoTab" role="tab" data-toggle="tab" (click)="resetModalWidth()">Info</a>
+                      </li>
+                      <li role="presentation">
+                        <a href="#transactionsTab" aria-controls="transactionsTab" role="tab" data-toggle="tab" (click)="expandModal()">Transactions</a>
+                      </li>
+                      <li role="presentation">
+                        <a href="#scoresTab" aria-controls="scoresTab" role="tab" data-toggle="tab" (click)="resetModalWidth(); populateLeaderboard();">Scores</a>
+                      </li>
+                      <li role="presentation">
+                        <a href="#settingsTab" aria-controls="settingsTab" role="tab" data-toggle="tab" (click)="resetModalWidth(); readSettings();">Settings</a>
+                      </li>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  </ul>
+                  <!-- Tab panes -->
+                  <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="infoTab">
+                        <img id="vitalik" src="../assets/Images/menuHeader3.png" class="img-responsive"/>
+                          <p>FeedVitalik is an Ethereum blockchain transaction visualizer with a twist. The
+                          Eth you see falling from the sky are real time transactions happening on the Ethereum blockchain.</p>
+
+                          <p>The size and value of each Eth is determined by the size of the transaction. Eat the Eth to help feed a hungry Vitalik as well as increase your score.</p>
+
+                          <h3>Controls</h3>
+                          <p>Use your arrow keys to move Vitalik horizontally, up and down. (WASD work as well)</p>
+
+                          <h3>Credits</h3>
+                          <p>8-bit art created using <a href="https://make8bitart.com" >make8bitart.com</a> Thanks <a href="https://twitter.com/jennschiffer">@jennschiffer</a>!</p>
+
+                          <h3>Support</h3>
+                          <p> Support FeedVitalik.com by donating Ethereum or Bitcoin to the following address's.</p>
+
+                          <form>
+                          <div class="input-group">
+                            <span class="input-group-addon">Ethereum</span>
+                            <input class="form-control" type="text" id="donate" readonly="readonly" value="Eth Address">
+                          </div>
+
+                          <br />
+
+                          <div class="input-group">
+                              <span class="input-group-addon"><i class="glyphicon glyphicon-bitcoin"></i>Bitcoin</span>
+                            <input class="form-control" type="text" id="donate" readonly="readonly" value="BTC Address">
+                          </div>
+                          
+                        </form>
+                    </div>
+
+                    <div role="tabpanel" class="tab-pane" id="scoresTab">
+                        <h2>Local High Scores</h2>
+                        <table class="table table-striped">
+                            <thead>
+                              <tr>
+                                <th>Score</th>
+                                <th>Largest</th>
+                                <th>Date</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td id="score1"></td>
+                                <td id="largest1"></td>
+                                <td id="date1"></td>
+                              </tr>
+                              <tr>
+                                <td id="score2"></td>
+                                <td id="largest2"></td>
+                                <td id="date2"></td>
+                              </tr>
+                              <tr>
+                                <td id="score3"></td>
+                                <td id="largest3"></td>
+                                <td id="date3"></td>
+                              </tr>
+                              <tr>
+                                <td id="score4"></td>
+                                <td id="largest4"></td>
+                                <td id="date4"></td>
+                              </tr>
+                              <tr>
+                                <td id="score5"></td>
+                                <td id="largest5"></td>
+                                <td id="date5"></td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          <p><a href="#" (click)="clearScores()" >Clear Leaderboard</a></p>
+                    </div>
+
+                    <div role="tabpanel" class="tab-pane" id="transactionsTab">
+                      <h2>Transactions Vitalik Ate</h2>
+                      <div id="container">
+                        <table class="table table-striped">
+                          <thead>
+                            <tr>
+                              <th>Block Number</th>
+                              <th>From</th>
+                              <th>To</th>
+                              <th>Amount (Eth)</th>
+                              <th>Gas Price (Gwei)</th>
+                              <th>View on Etherscan</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let tx of eatenTransactions" >
+                              <td>{{tx.blockNumber}}</td>
+                              <td>{{tx.from}}</td>
+                              <td>{{tx.to}}</td>
+                              <td>{{convertToEth(tx.value).toFixed(4)}}</td>
+                              <td>{{ConvertToGwei(tx.gasPrice).toFixed(2)}}</td>
+                              <td><a href="https://etherscan.io/tx/{{tx.hash}}" target="_blank">Etherscan</a></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <div role="tabpanel" class="tab-pane" id="settingsTab">
+                      <form>
+                        <h3>Sound</h3>
+                        <label class="radio-inline"><input type="radio" name="sound" [value]="true" [(ngModel)]="sound" (click)="setSound(true)">On</label>
+                        <label class="radio-inline"><input type="radio" name="sound" [value]="false" [(ngModel)]="sound" (click)="setSound(false)">Off</label>
+
+                        <br />
+
+                        <h3>Background</h3>
+                        <label class="radio-inline no-margin">
+                          <input type="radio" name="background" [value]="1" [(ngModel)]="background" (click)="setBackground(1)">
+                          <img class="bg" id="bg1" src="../assets/Images/backgrounds/bg1.png" width="192px" height="120px"/>
+                        </label>
+                        <label class="radio-inline no-margin">
+                          <input type="radio" name="background" [value]="2" [(ngModel)]="background" (click)="setBackground(2)">
+                          <img class="bg" id="bg2" src="../assets/Images/backgrounds/bg2.png" width="192px" height="120px"/>
+                        </label>
+                        <label class="radio-inline no-margin">
+                          <input type="radio" name="background" [value]="3" [(ngModel)]="background" (click)="setBackground(3)">
+                          <img class="bg" id="bg3" src="../assets/Images/backgrounds/bg3.png" width="192px" height="120px"/>
+                        </label>
+                      </form>
+                    </div>
+
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<button type="button" class="btn btn-primary btn-md" id="menu" data-toggle="modal" data-target="#myModal">Menu</button>

@@ -1,8 +1,27 @@
 .bg {
-    background-image: url('../assets/Images/coming_soon.png');
+    background-image: url('../assets/Images/backgrounds/bg1.png');
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
     overflow: hidden;
     height: 100%;
+}
+
+p {
+    font-family: 'Press Start 2P';
+    color: red;
+    margin: 10px;
+    font-size: 12px;
+}
+
+.music{
+    position: absolute;
+    bottom: 92%;
+    right: 10px;
+}
+
+#version {
+    position: absolute;
+    right: 10px;
+    bottom: 0%;
 }

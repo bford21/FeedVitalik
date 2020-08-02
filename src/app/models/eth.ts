@@ -1,7 +1,7 @@
 export class Eth {
-    private x = 0;
-    public y = -10.0;
-    // Eventually these will be randomized
+    public x = 0;
+    public y = -100.0;
+    public transaction: any;
     private width = 100;
     private height = 100;
     private speed;
@@ -14,6 +14,7 @@ export class Eth {
     private ethXXLSrc = '../../assets/Images/eth_xl.png';
 
     constructor(private context: CanvasRenderingContext2D, transaction, canvasWidth) {
+        this.transaction = transaction;
         this.setSize(transaction.value);
         this.setSpeed(transaction.gas);
         this.x = this.generateRandom(0.0, canvasWidth);
@@ -75,7 +76,6 @@ export class Eth {
         } else {
             this.speed = this.generateRandom(4.0, 5.0);
         }
-        console.log(this.speed);
     }
 
     private draw() {
