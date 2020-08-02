@@ -142,7 +142,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
   getBlock(block: any) {
     this.latestBlock = block;
     this.web3.eth.getBlock(block, true).then(result => {
-      // this.createEth(result.transactions);
+      this.createEth(result.transactions);
     });
   }
 
@@ -183,6 +183,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
       if(this.powerUpTimer > 0) {
         // Subtract the current rate that drawCanvas is being called
         this.powerUpTimer -= 20;
+        this.drawPowerUpMeter();
       } else if (this.powerUpTimer <= 0) {
         // Powerup has ran out of time, reset
         console.log("Power up ran out")
@@ -227,6 +228,13 @@ export class CanvasComponent implements OnInit, OnDestroy {
     } else {
       return false
     }
+  }
+
+  drawPowerUpMeter() {
+    this.context.font = "15px 'Press Start 2P'";
+    this.context.fillStyle = "red";
+    this.context.fillText("2x Speed", (this.canvasWidth/2)-100, 25)
+    this.context.fillRect((this.canvasWidth/2)-150, 35, (this.powerUpTimer/100), 15);
   }
 
   drawWaitingForBlock() {
