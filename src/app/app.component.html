@@ -2,6 +2,12 @@
     <app-canvas (transaction)='processEatenTransaction($event)'></app-canvas>
 </div>
 
+<div class="progress powerupBar">
+    <div class="progress-bar powerupBar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:70%">
+        <span class="sr-only">70% Complete</span>
+    </div>
+</div>
+
 <app-menu [eatenTransactions]="eatenTransactions" (changeSound)='changeSoundSetting($event)'></app-menu>
 
 <p id="version">Beta v0.0.1</p>

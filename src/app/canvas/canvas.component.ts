@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, NgZone, OnDestroy, HostListen
 import { Eth } from '../models/eth';
 import Web3 from 'web3';
 import { formatDate } from '@angular/common';
+import { Unicorn } from '../models/unicorn';
 
 const vitalikWidth = 90;
 const vitalikHeight = 210;
@@ -34,6 +35,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
   vitalikOpenMouthSrc = '../../assets/Images/vitalikOpenMouth_Transparent.png';
   vitalikXCoord;
   vitalikYCoord;
+  vitalikSpeed = 12;
 
   groundYCoord = 0;
   canvasHeight = 0;
@@ -42,6 +44,10 @@ export class CanvasComponent implements OnInit, OnDestroy {
   interval;
   eth: Eth[] = [];
   web3: any;
+  unicorn: Unicorn;
+  powerUpTimer;
+  powerUpLength = 20000;
+  powerUpActive = false;
 
   // Scoreboard
   score = 0;
@@ -59,9 +65,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
 
   @HostListener('window:keydown', ['$event'])
   keyEvent(event: KeyboardEvent) {
-    console.log(event);
     // if (event.key === KEY_CODE.RIGHT_ARROW && event.key === KEY_CODE.DOWN_ARROW) {
-
     // }
 
     if (event.key === KEY_CODE.RIGHT_ARROW || event.key === KEY_CODE.D) {
@@ -88,6 +92,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
     this.context.imageSmoothingEnabled = false;
     this.vitalikSmile.src = this.vitalikSmileSrc;
     this.vitalikOpenMouth.src = this.vitalikOpenMouthSrc;
+    this.powerUpTimer = this.powerUpLength;
 
     // Redraw canvas every 10ms
     this.ngZone.runOutsideAngular(() =>
@@ -137,7 +142,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
   getBlock(block: any) {
     this.latestBlock = block;
     this.web3.eth.getBlock(block, true).then(result => {
-      this.createEth(result.transactions);
+      // this.createEth(result.transactions);
     });
   }
 
@@ -169,13 +174,51 @@ export class CanvasComponent implements OnInit, OnDestroy {
       eth.moveDown();
     });
 
+    if(this.powerUpActive) {
+      // Delete old unicorn powerup
+      if(this.unicorn !== undefined){
+        this.unicorn = undefined;
+      }
+      console.log("Time left on power")
+      if(this.powerUpTimer > 0) {
+        // Subtract the current rate that drawCanvas is being called
+        this.powerUpTimer -= 20;
+      } else if (this.powerUpTimer <= 0) {
+        // Powerup has ran out of time, reset
+        console.log("Power up ran out")
+        this.powerUpActive = false;
+        this.powerUpTimer = this.powerUpLength;
+        this.vitalikSpeed = 12;
+      }
+    }
+
     if(this.eth.length < 1) {
       this.drawWaitingForBlock();
+
+      // Create new unicorn if one does not exist
+      if(this.unicorn === undefined) {
+        this.unicorn = new Unicorn(this.context, this.canvasWidth, this.canvasHeight);
+      }
+
+      if(this.checkIfRidingUnicorn(this.unicorn)) {
+        this.powerUpActive = true;
+        this.vitalikSpeed = 24;
+      } else if(this.powerUpActive === false) {
+        this.unicorn.draw();
+      }
     }
 
     this.drawScoreboard()
 
     this.requestId = requestAnimationFrame(() => this.drawCanvas);
+  }
+
+  checkIfRidingUnicorn(unicorn) {
+    if(this.vitalikXCoord+70 > unicorn.x && this.vitalikXCoord-80 < unicorn.x) {
+      return true;
+    } else {
+      return false
+    }
   }
 
   isEaten(eth){
@@ -247,25 +290,25 @@ export class CanvasComponent implements OnInit, OnDestroy {
 
   moveRight() {
     if (this.vitalikXCoord < (this.canvasWidth - 50) ) {
-      this.vitalikXCoord += 12;
+      this.vitalikXCoord += this.vitalikSpeed;
     }
   }
 
   moveLeft() {
     if (this.vitalikXCoord > -50) {
-      this.vitalikXCoord -= 12;
+      this.vitalikXCoord -= this.vitalikSpeed;
     }
   }
 
   moveDown() {
     if (this.vitalikYCoord < (this.canvasHeight - vitalikHeight)) {
-      this.vitalikYCoord += 10;
+      this.vitalikYCoord += this.vitalikSpeed;
     }
   }
 
   moveUp() {
     if (this.vitalikYCoord > this.groundYCoord) {
-      this.vitalikYCoord -= 10;
+      this.vitalikYCoord -= this.vitalikSpeed;
     }
   }
 
