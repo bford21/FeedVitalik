@@ -98,9 +98,6 @@ export class MenuComponent {
   setBackground(value) {
     this.background = value;
     this.storeSettings();
-    if(this.background == 1) {
-
-    }
     document.getElementById('bg').style.backgroundImage = "url('../assets/Images/backgrounds/bg" + this.background + ".png')"
   }
 
