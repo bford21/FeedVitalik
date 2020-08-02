@@ -7,7 +7,8 @@ import { Component, OnInit } from '@angular/core';
 export class AppComponent implements OnInit {
   eatenTransactions: any = [];
   playsound;
-  sound = new Audio("../assets/shortChew.wav"); // buffers automatically when created
+  chew = new Audio("../assets/shortChew.wav"); // buffers automatically when created
+  powerupSound = new Audio("../assets/powerup.mp3");
   constructor() {}
 
     ngOnInit() {
@@ -17,7 +18,7 @@ export class AppComponent implements OnInit {
     processEatenTransaction($event){
       this.eatenTransactions.push($event)
       if(this.playsound === true) {
-        this.sound.play()
+        this.chew.play()
       }
     }
 
@@ -44,5 +45,11 @@ export class AppComponent implements OnInit {
     changeSoundSetting($event) {
       console.log('Sound preferences changed to ' + $event)
       this.playsound = $event;
+    }
+
+    powerUpSound($event) {
+      if(this.playsound) {
+        this.powerupSound.play();
+      }
     }
 }

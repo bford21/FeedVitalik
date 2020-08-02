@@ -26,6 +26,7 @@ export enum KEY_CODE {
 export class CanvasComponent implements OnInit, OnDestroy {
   @ViewChild('canvas', {static: true}) canvas: ElementRef<HTMLCanvasElement>;
   @Output() transaction: EventEmitter<any> = new EventEmitter<any>();
+  @Output() powerUpSound: EventEmitter<any> = new EventEmitter<any>();
 
   private context: CanvasRenderingContext2D;
 
@@ -48,6 +49,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
   powerUpTimer;
   powerUpLength = 20000;
   powerUpActive = false;
+  playPowerUpSound = true;
 
   // Scoreboard
   score = 0;
@@ -190,6 +192,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
         this.powerUpActive = false;
         this.powerUpTimer = this.powerUpLength;
         this.vitalikSpeed = 12;
+        this.playPowerUpSound = true; // Reset to true so sound plays next time around
       }
     }
 
@@ -202,6 +205,11 @@ export class CanvasComponent implements OnInit, OnDestroy {
       }
 
       if(this.checkIfRidingUnicorn(this.unicorn)) {
+        // Only play power up sound once
+        if(this.playPowerUpSound) {
+          this.powerUpSound.emit(true)
+          this.playPowerUpSound = false;
+        }
         this.powerUpActive = true;
         this.vitalikSpeed = 24;
       } else if(this.powerUpActive === false) {
