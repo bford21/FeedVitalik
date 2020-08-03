@@ -33,33 +33,33 @@ export class Eth {
     private setSize(value) {
         // Less than .1 eth
         if (value < 100000000000000000) {
-            this.width = 50;
-            this.height = 50;
+            this.width = 24;
+            this.height = 28;
             this.eth.src = this.ethXSSrc;
         } else if (value < 1000000000000000000) {
             // less than 1 eth
-            this.width = 100;
-            this.height = 100;
+            this.width = 34;
+            this.height = 50;
             this.eth.src = this.ethSmallSrc;
         } else if (value < 10000000000000000000) {
             // less than 10 eth
-            this.width = 150;
-            this.height = 150;
+            this.width = 51;
+            this.height = 72;
             this.eth.src = this.ethMedSrc;
         } else if (value < 100000000000000000000) {
             // less than 100 eth
-            this.width = 200;
-            this.height = 200;
+            this.width = 73;
+            this.height = 100;
             this.eth.src = this.ethLargeSrc;
         } else if (value < 1000000000000000000000) {
             // less than 1000 eth
-            this.width = 250;
-            this.height = 250;
+            this.width = 112;
+            this.height = 170;
             this.eth.src = this.ethXLSrc;
         } else {
             // Greater than 1000
-            this.width = 350;
-            this.height = 350;
+            this.width = 164;
+            this.height = 245;
             this.eth.src = this.ethXXLSrc;
         }
     }

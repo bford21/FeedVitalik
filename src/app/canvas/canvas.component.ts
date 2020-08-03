@@ -3,6 +3,7 @@ import { Eth } from '../models/eth';
 import Web3 from 'web3';
 import { formatDate } from '@angular/common';
 import { Unicorn } from '../models/unicorn';
+import { Dollar } from '../models/dollar';
 
 const vitalikWidth = 90;
 const vitalikHeight = 210;
@@ -15,7 +16,8 @@ export enum KEY_CODE {
   A = 'a',
   D = 'd',
   W = 'w',
-  S = 's'
+  S = 's',
+  ENTER = 'Enter'
 }
 
 @Component({
@@ -27,6 +29,8 @@ export class CanvasComponent implements OnInit, OnDestroy {
   @ViewChild('canvas', {static: true}) canvas: ElementRef<HTMLCanvasElement>;
   @Output() transaction: EventEmitter<any> = new EventEmitter<any>();
   @Output() powerUpSound: EventEmitter<any> = new EventEmitter<any>();
+  @Output() gameOverSound: EventEmitter<any> = new EventEmitter<any>();
+  @Output() resetEatenTxs: EventEmitter<any> = new EventEmitter<any>();
 
   private context: CanvasRenderingContext2D;
 
@@ -44,10 +48,12 @@ export class CanvasComponent implements OnInit, OnDestroy {
   requestId;
   interval;
   eth: Eth[] = [];
+  dollars: Dollar[] = [];
+
   web3: any;
   unicorn: Unicorn;
   powerUpTimer;
-  powerUpLength = 20000;
+  powerUpLength = 20000; // 20 Seconds
   powerUpActive = false;
   playPowerUpSound = true;
 
@@ -56,6 +62,8 @@ export class CanvasComponent implements OnInit, OnDestroy {
   largestEth = 0;
   lastEth = 0
   latestBlock = 0;
+
+  died = false;
 
   // Local storage
   guid = this.generateGuid()
@@ -67,8 +75,9 @@ export class CanvasComponent implements OnInit, OnDestroy {
 
   @HostListener('window:keydown', ['$event'])
   keyEvent(event: KeyboardEvent) {
-    // if (event.key === KEY_CODE.RIGHT_ARROW && event.key === KEY_CODE.DOWN_ARROW) {
-    // }
+    if (event.key === KEY_CODE.ENTER && this.died) {
+      this.restartGame();
+    }
 
     if (event.key === KEY_CODE.RIGHT_ARROW || event.key === KEY_CODE.D) {
       this.moveRight();
@@ -99,7 +108,11 @@ export class CanvasComponent implements OnInit, OnDestroy {
     // Redraw canvas every 10ms
     this.ngZone.runOutsideAngular(() =>
       setInterval(() => {
-        this.drawCanvas();
+        if(!this.died){
+          this.drawCanvas();
+        } else {
+          this.drawGameOver();
+        }
       }, 20)
     );
     
@@ -149,10 +162,15 @@ export class CanvasComponent implements OnInit, OnDestroy {
   }
 
   createEth(transactions) {
-    transactions.forEach(transaction => {
+    transactions.forEach((transaction, index) => {
       if (transaction.value > 0) {
         const newEth = new Eth(this.context, transaction, this.canvasWidth);
         this.eth.push(newEth);
+
+        if((index % 30) == 0) {
+          const newDollar = new Dollar(this.context, this.canvasWidth);
+          this.dollars.push(newDollar);
+        }
       }
     });
   }
@@ -174,6 +192,21 @@ export class CanvasComponent implements OnInit, OnDestroy {
         this.context.drawImage(this.vitalikOpenMouth, this.vitalikXCoord, this.vitalikYCoord, vitalikWidth, vitalikHeight);
       }
       eth.moveDown();
+    });
+
+    this.dollars.forEach((dollar, index) => {
+      // Remove dollars that have moved off screen
+      if (dollar.y > this.canvasHeight) {
+        this.dollars.splice(index, 1);
+      }
+
+      // Check if being eaten
+      if (this.isEaten(dollar)){
+        this.dollars.splice(index, 1);
+        this.context.drawImage(this.vitalikOpenMouth, this.vitalikXCoord, this.vitalikYCoord, vitalikWidth, vitalikHeight);
+        this.endGame();
+      }
+      dollar.moveDown();
     });
 
     if(this.powerUpActive) {
@@ -217,9 +250,40 @@ export class CanvasComponent implements OnInit, OnDestroy {
       }
     }
 
-    this.drawScoreboard()
+    this.drawScoreboard();
 
     this.requestId = requestAnimationFrame(() => this.drawCanvas);
+  }
+
+  endGame(){
+    this.died = true;
+    this.gameOverSound.emit(true);
+  }
+
+  drawGameOver() {
+    this.clearCanvas();
+    this.drawScoreboard();
+    this.context.font = "45px 'Press Start 2P'";
+    this.context.fillStyle = "red";
+    this.context.fillText("GAME OVER", (this.canvasWidth/2)-170, this.canvasHeight/2)
+
+    this.context.font = "15px 'Press Start 2P'";
+    this.context.fillStyle = "blue";
+    this.context.fillText("Press enter to play again", (this.canvasWidth/2)-150, (this.canvasHeight/2)+50)
+  }
+
+  restartGame() {
+    this.died = false;
+    this.score = 0;
+    this.largestEth = 0;
+    this.lastEth = 0
+    this.powerUpActive = false;
+    this.powerUpTimer = 0;
+    this.vitalikSpeed = 12;
+    this.eth = [];
+    this.dollars = [];
+    this.resetEatenTxs.emit(true);
+    this.guid = this.generateGuid();
   }
 
   checkIfRidingUnicorn(unicorn) {
@@ -230,8 +294,8 @@ export class CanvasComponent implements OnInit, OnDestroy {
     }
   }
 
-  isEaten(eth){
-    if(this.vitalikXCoord+70  > eth.x && this.vitalikXCoord-80 < eth.x && this.vitalikYCoord+70 > eth.y && this.vitalikYCoord-40 < eth.y){
+  isEaten(item){
+    if(this.vitalikXCoord+70  > item.x && this.vitalikXCoord-80 < item.x && this.vitalikYCoord+70 > item.y && this.vitalikYCoord-40 < item.y){
       return true
     } else {
       return false

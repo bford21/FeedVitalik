@@ -8,7 +8,8 @@ export class AppComponent implements OnInit {
   eatenTransactions: any = [];
   playsound;
   chew = new Audio("../assets/shortChew.wav"); // buffers automatically when created
-  powerupSound = new Audio("../assets/powerup.mp3");
+  powerupMusic = new Audio("../assets/powerup.mp3");
+  gameOverMusic = new Audio("../assets/gameOver.mp3");
   constructor() {}
 
     ngOnInit() {
@@ -49,7 +50,18 @@ export class AppComponent implements OnInit {
 
     powerUpSound($event) {
       if(this.playsound) {
-        this.powerupSound.play();
+        this.powerupMusic.play();
       }
     }
+
+    gameOverSound(){
+      if(this.playsound) {
+        this.gameOverMusic.play();
+      }
+    }
+
+    resetEatenTxs() {
+      this.eatenTransactions = [];
+    }
+
 }
