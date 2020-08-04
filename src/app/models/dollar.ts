@@ -1,8 +1,8 @@
 export class Dollar {
     public x = 0;
     public y = -100.0;
-    private width = 24.5;
-    private height = 49;
+    public width = 24.5;
+    public height = 49;
     private speed;
 
     private dollar = new Image();

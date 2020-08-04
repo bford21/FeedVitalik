@@ -2,8 +2,8 @@ export class Eth {
     public x = 0;
     public y = -100.0;
     public transaction: any;
-    private width = 100;
-    private height = 100;
+    public width = 100;
+    public height = 100;
     private speed;
     private eth = new Image();
     private ethXSSrc = '../../assets/Images/eth_xs.png';
@@ -16,7 +16,7 @@ export class Eth {
     constructor(private context: CanvasRenderingContext2D, transaction, canvasWidth) {
         this.transaction = transaction;
         this.setSize(transaction.value);
-        this.setSpeed(transaction.gas);
+        this.setSpeed(this.convertToGwei(transaction.gasPrice));
         this.x = this.generateRandom(0.0, canvasWidth);
     }
 
@@ -64,14 +64,14 @@ export class Eth {
         }
     }
 
-    private setSpeed(gas) {
-        if (gas < 20000) {
+    private setSpeed(gasPrice) {
+        if (gasPrice < 40) {
             this.speed = this.generateRandom(0.5, 1.0);
-        } else if (gas < 50000) {
+        } else if (gasPrice < 60) {
             this.speed = this.generateRandom(1.0, 2.0);
-        } else if (gas < 100000) {
+        } else if (gasPrice < 100) {
             this.speed = this.generateRandom(2.0, 3.0);
-        } else if (gas < 200000) {
+        } else if (gasPrice < 150) {
             this.speed = this.generateRandom(3.0, 4.0);
         } else {
             this.speed = this.generateRandom(4.0, 5.0);
@@ -81,4 +81,8 @@ export class Eth {
     private draw() {
         this.context.drawImage(this.eth, this.x, this.y, this.width, this.height);
     }
+
+    private convertToGwei(wei) {
+        return wei / 10**9
+      }
 }

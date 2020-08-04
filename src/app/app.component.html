@@ -1,5 +1,10 @@
 <div id="bg" class="bg">
-    <app-canvas (transaction)='processEatenTransaction($event)' (powerUpSound)="powerUpSound" (resetEatenTxs)="resetEatenTxs()"></app-canvas>
+    <app-canvas
+        (transaction)='processEatenTransaction($event)'
+        (powerUpSound)="powerUpSound()"
+        (resetEatenTxs)="resetEatenTxs()"
+        (gameOverSound)="gameOverSound()">
+    </app-canvas>
 </div>
 
 <app-menu [eatenTransactions]="eatenTransactions" (changeSound)='changeSoundSetting($event)'></app-menu>
