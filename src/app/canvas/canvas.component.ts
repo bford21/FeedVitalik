@@ -7,6 +7,7 @@ import { Dollar } from '../models/dollar';
 
 const vitalikWidth = 90;
 const vitalikHeight = 210;
+const canvasRedrawRate = 15;
 
 export enum KEY_CODE {
   RIGHT_ARROW = 'ArrowRight',
@@ -40,7 +41,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
   vitalikOpenMouthSrc = '../../assets/Images/vitalikOpenMouth_Transparent.png';
   vitalikXCoord;
   vitalikYCoord;
-  vitalikSpeed = 15;
+  vitalikSpeed;
 
   groundYCoord = 0;
   canvasHeight = 0;
@@ -114,7 +115,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
         } else {
           this.drawGameOver();
         }
-      }, 20)
+      }, canvasRedrawRate)
     );
     
     // Store data in localstorage
@@ -167,7 +168,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
       if (transaction.value > 0) {
         const newEth = new Eth(this.context, transaction, this.canvasWidth);
         this.eth.push(newEth);
-
+        
         if((index % 30) == 0) {
           const newDollar = new Dollar(this.context, this.canvasWidth);
           this.dollars.push(newDollar);
@@ -177,9 +178,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
   }
 
   setVitalikSpeed(){
-    this.vitalikSpeed = this.canvasWidth * 0.0078125;
-    console.log("Canvas width " + this.canvasWidth);
-    console.log("Vitalik speed " + this.vitalikSpeed);
+    this.vitalikSpeed = this.canvasWidth * 0.02;
   }
 
   drawCanvas() {
@@ -192,7 +191,6 @@ export class CanvasComponent implements OnInit, OnDestroy {
         this.eth.splice(index, 1);
       }
 
-      // Check if being eaten
       if (this.isEaten(eth)){
         this.processEatenTransaction(eth.transaction)
         this.eth.splice(index, 1);
@@ -207,7 +205,6 @@ export class CanvasComponent implements OnInit, OnDestroy {
         this.dollars.splice(index, 1);
       }
 
-      // Check if being eaten
       if (this.isEaten(dollar)){
         this.dollars.splice(index, 1);
         this.context.drawImage(this.vitalikOpenMouth, this.vitalikXCoord, this.vitalikYCoord, vitalikWidth, vitalikHeight);
@@ -224,14 +221,14 @@ export class CanvasComponent implements OnInit, OnDestroy {
       console.log("Time left on power")
       if(this.powerUpTimer > 0) {
         // Subtract the current rate that drawCanvas is being called
-        this.powerUpTimer -= 20;
+        this.powerUpTimer -= canvasRedrawRate;
         this.drawPowerUpMeter();
       } else if (this.powerUpTimer <= 0) {
         // Powerup has ran out of time, reset
         console.log("Power up ran out")
         this.powerUpActive = false;
         this.powerUpTimer = this.powerUpLength;
-        this.vitalikSpeed = 12;
+        this.setVitalikSpeed()
         this.playPowerUpSound = true; // Reset to true so sound plays next time around
       }
     }
@@ -251,7 +248,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
           this.playPowerUpSound = false;
         }
         this.powerUpActive = true;
-        this.vitalikSpeed = 24;
+        this.vitalikSpeed += this.canvasWidth * 0.001;
       } else if(this.powerUpActive === false) {
         this.unicorn.draw();
       }
@@ -274,9 +271,9 @@ export class CanvasComponent implements OnInit, OnDestroy {
     this.context.fillStyle = "red";
     this.context.fillText("GAME OVER", (this.canvasWidth/2)-170, this.canvasHeight/2)
 
-    this.context.font = "15px 'Press Start 2P'";
+    this.context.font = "2rem 'Press Start 2P'";
     this.context.fillStyle = "blue";
-    this.context.fillText("Press enter to play again", (this.canvasWidth/2)-150, (this.canvasHeight/2)+50)
+    this.context.fillText("Press enter to play again", (this.canvasWidth/2)-220, (this.canvasHeight/2)+50)
   }
 
   restartGame() {
@@ -286,7 +283,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
     this.lastEth = 0
     this.powerUpActive = false;
     this.powerUpTimer = 0;
-    this.vitalikSpeed = 12;
+    this.setVitalikSpeed();
     this.eth = [];
     this.dollars = [];
     this.resetEatenTxs.emit(true);
@@ -302,7 +299,10 @@ export class CanvasComponent implements OnInit, OnDestroy {
   }
 
   isEaten(item){
-    if(this.vitalikXCoord+70  > item.x && this.vitalikXCoord-80 < item.x && this.vitalikYCoord+70 > item.y && this.vitalikYCoord-40 < item.y){
+    const centerX = item.x+(item.width/2);
+    const centerY = item.y+(item.height/2);
+
+    if(this.vitalikXCoord+vitalikWidth  > centerX && this.vitalikXCoord < centerX && this.vitalikYCoord+item.height+20 > centerY && this.vitalikYCoord < centerY){
       return true
     } else {
       return false
@@ -310,29 +310,29 @@ export class CanvasComponent implements OnInit, OnDestroy {
   }
 
   drawPowerUpMeter() {
-    this.context.font = "15px 'Press Start 2P'";
+    this.context.font = "2rem 'Press Start 2P'"
     this.context.fillStyle = "red";
-    this.context.fillText("2x Speed", (this.canvasWidth/2)-100, 25)
+    this.context.fillText("Speed Boost", (this.canvasWidth/2)-140, 25)
     this.context.fillRect((this.canvasWidth/2)-150, 35, (this.powerUpTimer/100), 15);
   }
 
   drawWaitingForBlock() {
-    this.context.font = "15px 'Press Start 2P'";
+    this.context.font = "2rem 'Press Start 2P'";
     this.context.fillStyle = "blue";
-    this.context.fillText("Waiting for next block to be mined...", (this.canvasWidth / 2) - 200, (this.canvasHeight / 2) - 100);
+    this.context.fillText("Waiting for next block to be mined...", (this.canvasWidth / 2) - 280, (this.canvasHeight / 2) - 100);
   }
 
   drawScoreboard(){
-    this.context.font = "25px 'Press Start 2P'";
+    this.context.font = "2.5rem 'Press Start 2P'";
     this.context.fillStyle = "red";
     this.context.fillText("Score: " + this.score.toFixed(4) + " eth", 10, 40);
 
-    this.context.font = "15px 'Press Start 2P'";
+    this.context.font = "2rem 'Press Start 2P'";
     this.context.fillStyle = "blue";
     this.context.fillText("Last: " + this.lastEth.toFixed(4) + " eth", 10, 80);
     this.context.fillText("Largest: " + this.largestEth.toFixed(4) + " eth", 10, 105);
 
-    this.context.font = "15px 'Press Start 2P'";
+    this.context.font = "2rem 'Press Start 2P'";
     this.context.fillStyle = "blue";
     this.context.fillText("Last Block: #" + this.latestBlock, 10, this.canvasHeight-10);
   }
@@ -388,14 +388,14 @@ export class CanvasComponent implements OnInit, OnDestroy {
   }
 
   moveDown() {
-    if (this.vitalikYCoord < (this.canvasHeight - vitalikHeight)) {
-      this.vitalikYCoord += this.vitalikSpeed;
+    if (this.vitalikYCoord < (this.canvasHeight - vitalikHeight)-26) {
+      this.vitalikYCoord += 25;
     }
   }
 
   moveUp() {
     if (this.vitalikYCoord > this.groundYCoord) {
-      this.vitalikYCoord -= this.vitalikSpeed;
+      this.vitalikYCoord -= 25;
     }
   }
 
