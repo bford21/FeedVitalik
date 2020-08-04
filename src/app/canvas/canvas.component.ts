@@ -248,7 +248,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
           this.playPowerUpSound = false;
         }
         this.powerUpActive = true;
-        this.vitalikSpeed += this.canvasWidth * 0.001;
+        this.vitalikSpeed += this.canvasWidth * 0.00075;
       } else if(this.powerUpActive === false) {
         this.unicorn.draw();
       }

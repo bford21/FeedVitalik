@@ -48,7 +48,7 @@ export class AppComponent implements OnInit {
       this.playsound = $event;
     }
 
-    powerUpSound($event) {
+    powerUpSound() {
       if(this.playsound) {
         this.powerupMusic.play();
       }
