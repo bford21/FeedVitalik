@@ -40,7 +40,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
   vitalikOpenMouthSrc = '../../assets/Images/vitalikOpenMouth_Transparent.png';
   vitalikXCoord;
   vitalikYCoord;
-  vitalikSpeed = 12;
+  vitalikSpeed = 15;
 
   groundYCoord = 0;
   canvasHeight = 0;
@@ -100,6 +100,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
     this.context = this.canvas.nativeElement.getContext('2d');
     const el = document.getElementById('canvas');
     this.fixDpi(el);
+    this.setVitalikSpeed()
     this.context.imageSmoothingEnabled = false;
     this.vitalikSmile.src = this.vitalikSmileSrc;
     this.vitalikOpenMouth.src = this.vitalikOpenMouthSrc;
@@ -173,6 +174,12 @@ export class CanvasComponent implements OnInit, OnDestroy {
         }
       }
     });
+  }
+
+  setVitalikSpeed(){
+    this.vitalikSpeed = this.canvasWidth * 0.0078125;
+    console.log("Canvas width " + this.canvasWidth);
+    console.log("Vitalik speed " + this.vitalikSpeed);
   }
 
   drawCanvas() {
