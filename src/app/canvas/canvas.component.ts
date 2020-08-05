@@ -62,26 +62,26 @@ export class CanvasComponent implements OnInit, OnDestroy {
   // Scoreboard
   score = 0;
   largestEth = 0;
-  lastEth = 0
+  lastEth = 0;
   latestBlock = 0;
 
   died = false;
 
   // Local storage
-  guid = this.generateGuid()
+  guid = this.generateGuid();
   date: any;
 
   jumping = false;
 
-  constructor(private ngZone: NgZone,) {
+  constructor(private ngZone: NgZone) {
     this.date = formatDate(new Date(), 'yyyy/MM/dd', 'en');
   }
 
   @HostListener('window:keydown', ['$event'])
   keyEvent(event: KeyboardEvent) {
-    console.log(event.key)
-    if(event.key === KEY_CODE.SPACE){
-      this.jump()
+
+    if (event.key === KEY_CODE.SPACE) {
+      this.jump();
     }
 
     if (event.key === KEY_CODE.ENTER && this.died) {
@@ -109,7 +109,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
     this.context = this.canvas.nativeElement.getContext('2d');
     const el = document.getElementById('canvas');
     this.fixDpi(el);
-    this.setVitalikSpeed()
+    this.setVitalikSpeed();
     this.context.imageSmoothingEnabled = false;
     this.vitalikSmile.src = this.vitalikSmileSrc;
     this.vitalikOpenMouth.src = this.vitalikOpenMouthSrc;
@@ -118,18 +118,18 @@ export class CanvasComponent implements OnInit, OnDestroy {
     // Redraw canvas every 10ms
     this.ngZone.runOutsideAngular(() =>
       setInterval(() => {
-        if(!this.died){
+        if (!this.died) {
           this.drawCanvas();
         } else {
           this.drawGameOver();
         }
       }, canvasRedrawRate)
     );
-    
+
     // Store data in localstorage
     this.ngZone.runOutsideAngular(() =>
       setInterval(() => {
-        this.storeData()
+        this.storeData();
       }, 1000)
     );
 
@@ -176,8 +176,8 @@ export class CanvasComponent implements OnInit, OnDestroy {
       if (transaction.value > 0) {
         const newEth = new Eth(this.context, transaction, this.canvasWidth);
         this.eth.push(newEth);
-        
-        if((index % 30) == 0) {
+
+        if ((index % 30) === 0) {
           const newDollar = new Dollar(this.context, this.canvasWidth);
           this.dollars.push(newDollar);
         }
@@ -185,18 +185,18 @@ export class CanvasComponent implements OnInit, OnDestroy {
     });
   }
 
-  setVitalikSpeed(){
+  setVitalikSpeed() {
     this.vitalikSpeed = this.canvasWidth * 0.02;
   }
 
   drawCanvas() {
     this.clearCanvas();
 
-    if(this.jumping == true){
-      if(this.vitalikYCoord > this.groundYCoord-(vitalikHeight)) { 
+    if (this.jumping === true) {
+      if (this.vitalikYCoord > (this.groundYCoord - (vitalikHeight))) {
         this.vitalikYCoord -= 30;
       } else {
-        if (this.vitalikYCoord < (this.canvasHeight - vitalikHeight)-31) {
+        if (this.vitalikYCoord < ((this.canvasHeight - vitalikHeight) - 31)) {
           this.vitalikYCoord = this.groundYCoord;
           this.jumping = false;
         }
@@ -204,15 +204,15 @@ export class CanvasComponent implements OnInit, OnDestroy {
     }
 
     this.context.drawImage(this.vitalikSmile, this.vitalikXCoord, this.vitalikYCoord, vitalikWidth, vitalikHeight);
-    
+
     this.eth.forEach((eth, index) => {
       // Remove eth that have moved off screen
       if (eth.y > this.canvasHeight) {
         this.eth.splice(index, 1);
       }
 
-      if (this.isEaten(eth)){
-        this.processEatenTransaction(eth.transaction)
+      if (this.isEaten(eth)) {
+        this.processEatenTransaction(eth.transaction);
         this.eth.splice(index, 1);
         this.context.drawImage(this.vitalikOpenMouth, this.vitalikXCoord, this.vitalikYCoord, vitalikWidth, vitalikHeight);
       }
@@ -225,7 +225,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
         this.dollars.splice(index, 1);
       }
 
-      if (this.isEaten(dollar)){
+      if (this.isEaten(dollar)) {
         this.dollars.splice(index, 1);
         this.context.drawImage(this.vitalikOpenMouth, this.vitalikXCoord, this.vitalikYCoord, vitalikWidth, vitalikHeight);
         this.endGame();
@@ -233,43 +233,42 @@ export class CanvasComponent implements OnInit, OnDestroy {
       dollar.moveDown();
     });
 
-    if(this.powerUpActive) {
+    if (this.powerUpActive) {
       // Delete old unicorn powerup
-      if(this.unicorn !== undefined){
+      if (this.unicorn !== undefined) {
         this.unicorn = undefined;
       }
-      console.log("Time left on power")
-      if(this.powerUpTimer > 0) {
+
+      if (this.powerUpTimer > 0) {
         // Subtract the current rate that drawCanvas is being called
         this.powerUpTimer -= canvasRedrawRate;
         this.drawPowerUpMeter();
       } else if (this.powerUpTimer <= 0) {
         // Powerup has ran out of time, reset
-        console.log("Power up ran out")
         this.powerUpActive = false;
         this.powerUpTimer = this.powerUpLength;
-        this.setVitalikSpeed()
+        this.setVitalikSpeed();
         this.playPowerUpSound = true; // Reset to true so sound plays next time around
       }
     }
 
-    if(this.eth.length < 1) {
+    if (this.eth.length < 1) {
       this.drawWaitingForBlock();
 
       // Create new unicorn if one does not exist
-      if(this.unicorn === undefined) {
+      if (this.unicorn === undefined) {
         this.unicorn = new Unicorn(this.context, this.canvasWidth, this.canvasHeight);
       }
 
-      if(this.checkIfRidingUnicorn(this.unicorn)) {
+      if (this.checkIfRidingUnicorn(this.unicorn)) {
         // Only play power up sound once
-        if(this.playPowerUpSound) {
-          this.powerUpSound.emit(true)
+        if (this.playPowerUpSound) {
+          this.powerUpSound.emit(true);
           this.playPowerUpSound = false;
         }
         this.powerUpActive = true;
         this.vitalikSpeed += this.canvasWidth * 0.00055;
-      } else if(this.powerUpActive === false) {
+      } else if (this.powerUpActive === false) {
         this.unicorn.draw();
       }
     }
@@ -279,7 +278,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
     this.requestId = requestAnimationFrame(() => this.drawCanvas);
   }
 
-  endGame(){
+  endGame() {
     this.died = true;
     this.gameOverSound.emit(true);
   }
@@ -288,19 +287,19 @@ export class CanvasComponent implements OnInit, OnDestroy {
     this.clearCanvas();
     this.drawScoreboard();
     this.context.font = "45px 'Press Start 2P'";
-    this.context.fillStyle = "red";
-    this.context.fillText("GAME OVER", (this.canvasWidth/2)-170, this.canvasHeight/2)
+    this.context.fillStyle = 'red';
+    this.context.fillText('GAME OVER', ((this.canvasWidth / 2) - 170), (this.canvasHeight / 2));
 
     this.context.font = "2rem 'Press Start 2P'";
-    this.context.fillStyle = "blue";
-    this.context.fillText("Press enter to play again", (this.canvasWidth/2)-220, (this.canvasHeight/2)+50)
+    this.context.fillStyle = 'blue';
+    this.context.fillText('Press enter to play again', ((this.canvasWidth / 2) - 220), ((this.canvasHeight / 2) + 50));
   }
 
   restartGame() {
     this.died = false;
     this.score = 0;
     this.largestEth = 0;
-    this.lastEth = 0
+    this.lastEth = 0;
     this.powerUpActive = false;
     this.powerUpTimer = 0;
     this.setVitalikSpeed();
@@ -311,68 +310,68 @@ export class CanvasComponent implements OnInit, OnDestroy {
   }
 
   checkIfRidingUnicorn(unicorn) {
-    if(this.vitalikXCoord+70 > unicorn.x && this.vitalikXCoord-80 < unicorn.x) {
+    if (this.vitalikXCoord + 70 > unicorn.x && this.vitalikXCoord - 80 < unicorn.x) {
       return true;
     } else {
-      return false
+      return false;
     }
   }
 
-  isEaten(item){
-    const centerX = item.x+(item.width/2);
-    const centerY = item.y+(item.height/2);
+  isEaten(item) {
+    const centerX = item.x + (item.width / 2);
+    const centerY = item.y + (item.height / 2);
 
-    if(this.vitalikXCoord+vitalikWidth  > centerX && this.vitalikXCoord < centerX && this.vitalikYCoord+item.height+20 > centerY && this.vitalikYCoord < centerY){
-      return true
+    if (this.vitalikXCoord + vitalikWidth  > centerX && this.vitalikXCoord < centerX && this.vitalikYCoord + item.height + 20 > centerY && this.vitalikYCoord < centerY) {
+      return true;
     } else {
-      return false
+      return false;
     }
   }
 
   drawPowerUpMeter() {
     this.context.font = "2rem 'Press Start 2P'"
-    this.context.fillStyle = "red";
-    this.context.fillText("Speed Boost", (this.canvasWidth/2)-140, 25)
-    this.context.fillRect((this.canvasWidth/2)-150, 35, (this.powerUpTimer/100), 15);
+    this.context.fillStyle = 'red';
+    this.context.fillText('Speed Boost', (this.canvasWidth / 2) - 140, 25);
+    this.context.fillRect((this.canvasWidth / 2) - 150, 35, (this.powerUpTimer / 100), 15);
   }
 
   drawWaitingForBlock() {
     this.context.font = "2rem 'Press Start 2P'";
-    this.context.fillStyle = "blue";
-    this.context.fillText("Waiting for next block to be mined...", (this.canvasWidth / 2) - 280, (this.canvasHeight / 2) - 100);
+    this.context.fillStyle = 'blue';
+    this.context.fillText('Waiting for next block to be mined...', (this.canvasWidth / 2) - 280, (this.canvasHeight / 2) - 100);
   }
 
   drawScoreboard(){
     this.context.font = "2.5rem 'Press Start 2P'";
-    this.context.fillStyle = "red";
-    this.context.fillText("Score: " + this.score.toFixed(4) + " eth", 10, 40);
+    this.context.fillStyle = 'red';
+    this.context.fillText('Score: ' + this.score.toFixed(4) + ' eth', 10, 40);
 
     this.context.font = "2rem 'Press Start 2P'";
-    this.context.fillStyle = "blue";
-    this.context.fillText("Last: " + this.lastEth.toFixed(4) + " eth", 10, 80);
-    this.context.fillText("Largest: " + this.largestEth.toFixed(4) + " eth", 10, 105);
+    this.context.fillStyle = 'blue';
+    this.context.fillText('Last: ' + this.lastEth.toFixed(4) + ' eth', 10, 80);
+    this.context.fillText('Largest: ' + this.largestEth.toFixed(4) + ' eth', 10, 105);
 
     this.context.font = "2rem 'Press Start 2P'";
-    this.context.fillStyle = "blue";
-    this.context.fillText("Last Block: #" + this.latestBlock, 10, this.canvasHeight-10);
+    this.context.fillStyle = 'blue';
+    this.context.fillText('Last Block: #' + this.latestBlock, 10, this.canvasHeight - 10);
   }
 
-  processEatenTransaction(transaction){
-    const ethValue = this.convertWeiToEth(transaction.value)
-    this.score += ethValue
+  processEatenTransaction(transaction) {
+    const ethValue = this.convertWeiToEth(transaction.value);
+    this.score += ethValue;
     this.lastEth = ethValue;
-    if(ethValue > this.largestEth) {
+    if (ethValue > this.largestEth) {
       this.largestEth = ethValue;
     }
     this.transaction.emit(transaction);
   }
 
-  storeData(){
-    var data = {
-      'guid': this.guid,
-      'date': this.date,
-      'score': this.score,
-      'largest': this.largestEth
+  storeData() {
+    const data = {
+      guid: this.guid,
+      date: this.date,
+      score: this.score,
+      largest: this.largestEth
     };
 
     localStorage.setItem(this.guid, JSON.stringify(data));
@@ -387,7 +386,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
   }
 
-  convertWeiToEth(wei){
+  convertWeiToEth(wei) {
     return wei / 10**18;
   }
 
