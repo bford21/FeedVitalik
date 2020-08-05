@@ -18,7 +18,8 @@ export enum KEY_CODE {
   D = 'd',
   W = 'w',
   S = 's',
-  ENTER = 'Enter'
+  ENTER = 'Enter',
+  SPACE = ' '
 }
 
 @Component({
@@ -70,12 +71,19 @@ export class CanvasComponent implements OnInit, OnDestroy {
   guid = this.generateGuid()
   date: any;
 
+  jumping = false;
+
   constructor(private ngZone: NgZone,) {
     this.date = formatDate(new Date(), 'yyyy/MM/dd', 'en');
   }
 
   @HostListener('window:keydown', ['$event'])
   keyEvent(event: KeyboardEvent) {
+    console.log(event.key)
+    if(event.key === KEY_CODE.SPACE){
+      this.jump()
+    }
+
     if (event.key === KEY_CODE.ENTER && this.died) {
       this.restartGame();
     }
@@ -183,8 +191,20 @@ export class CanvasComponent implements OnInit, OnDestroy {
 
   drawCanvas() {
     this.clearCanvas();
-    this.context.drawImage(this.vitalikSmile, this.vitalikXCoord, this.vitalikYCoord, vitalikWidth, vitalikHeight);
 
+    if(this.jumping == true){
+      if(this.vitalikYCoord > this.groundYCoord-(vitalikHeight)) { 
+        this.vitalikYCoord -= 30;
+      } else {
+        if (this.vitalikYCoord < (this.canvasHeight - vitalikHeight)-31) {
+          this.vitalikYCoord = this.groundYCoord;
+          this.jumping = false;
+        }
+      }
+    }
+
+    this.context.drawImage(this.vitalikSmile, this.vitalikXCoord, this.vitalikYCoord, vitalikWidth, vitalikHeight);
+    
     this.eth.forEach((eth, index) => {
       // Remove eth that have moved off screen
       if (eth.y > this.canvasHeight) {
@@ -397,6 +417,11 @@ export class CanvasComponent implements OnInit, OnDestroy {
     if (this.vitalikYCoord > this.groundYCoord) {
       this.vitalikYCoord -= 25;
     }
+  }
+
+  jump() {
+    console.log('jump');
+    this.jumping = true;
   }
 
   fixDpi(el) {
