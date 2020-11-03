@@ -13,8 +13,16 @@ export class Eth {
     private ethXLSrc = '../../assets/Images/eth_xl.png';
     private ethXXLSrc = '../../assets/Images/eth_xl.png';
 
+    private yam = '../../assets/Images/yam.png';
+    // TODO: ADD Uniswap Ample LP pool contract to array
+    // COMP, LEND, LINK, MKR, SNX, Weth, YFI, 
+    private yamContracts = ['0x8538e5910c6f80419cd3170c26073ff238048c9e', '0x6009a344c7f993b16eba2c673fefd2e07f9be5fd', '0xfdc28897a1e32b595f1f4f1d3ae0df93b1eee452', '0xcfe1e539acb2d489a651ca011a6eb93d32f97e23', '0x6c3fc1ffdb14d92394f40eec91d9ce8b807f132d', '0x587a07ce5c265a38dd6d42def1566ba73eeb06f5', '0xc5b6488c7d5bed173b76bd5dca712f45fb9eaeab']
+
     constructor(private context: CanvasRenderingContext2D, transaction, canvasWidth) {
         this.transaction = transaction;
+        if (this.isYam(transaction)) {
+            console.log("YAMFAM");
+        }
         this.setSize(transaction.value);
         this.setSpeed(this.convertToGwei(transaction.gasPrice));
         this.x = this.generateRandom(0.0, canvasWidth);
@@ -28,6 +36,16 @@ export class Eth {
     // min included, max excluded
     private generateRandom(min, max) {
         return Math.random() < 0.5 ? (( 1 - Math.random()) * (max - min) + min) : (Math.random() * (max - min) + min);
+    }
+
+    private isYam(tx) {
+        console.log(tx.hash)
+        if (this.yamContracts.includes(tx.to.toLowerCase()) || this.yamContracts.includes(tx.from.toLowerCase())) {
+            console.log('FOUND')
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private setSize(value) {

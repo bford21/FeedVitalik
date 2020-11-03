@@ -4,6 +4,7 @@ import Web3 from 'web3';
 import { formatDate } from '@angular/common';
 import { Unicorn } from '../models/unicorn';
 import { Dollar } from '../models/dollar';
+import { Web3Service } from '../services/web3.service';
 
 const vitalikWidth = 90;
 const vitalikHeight = 210;
@@ -52,7 +53,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
   eth: Eth[] = [];
   dollars: Dollar[] = [];
 
-  web3: any;
+  // web3: any;
   unicorn: Unicorn;
   powerUpTimer;
   powerUpLength = 20000; // 20 Seconds
@@ -73,7 +74,8 @@ export class CanvasComponent implements OnInit, OnDestroy {
 
   jumping = false;
 
-  constructor(private ngZone: NgZone) {
+  constructor(private ngZone: NgZone,
+     private web3Service: Web3Service) {
     this.date = formatDate(new Date(), 'yyyy/MM/dd', 'en');
   }
 
@@ -133,29 +135,37 @@ export class CanvasComponent implements OnInit, OnDestroy {
       }, 1000)
     );
 
-    this.web3 = new Web3(Web3.givenProvider || new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/'));
+    // this.web3Service.getUserBalance().then(function(retAccount: any) {
+    //   this.user.address = retAccount.account;
+    //   this.user.balance = retAccount.balance;
+    //   console.log('transfer.components :: getAccountAndBalance :: that.user');
+    //   console.log(this.user);
+    // }).catch(function(error) {
+    //   console.log(error);
+    // });
 
+    // this.web3 = new Web3(Web3.givenProvider || new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/'));
     // subscribe to new block headers
-    const subscription = this.web3.eth.subscribe('newBlockHeaders', (error, result) => {
-      if (!error) {
-          this.getBlock(result.number);
-          return;
-      }
-      console.error(error);
-      })
-    .on('connected', (subscriptionId) => {
-      console.log(subscriptionId);
-    })
-    .on('data', (blockHeader) => {
-      console.log('Data: ' + blockHeader);
-    })
-    .on('error', console.error);
+    // const subscription = this.web3.eth.subscribe('newBlockHeaders', (error, result) => {
+    //   if (!error) {
+    //       this.getBlock(result.number);
+    //       return;
+    //   }
+    //   console.error(error);
+    //   })
+    // .on('connected', (subscriptionId) => {
+    //   console.log(subscriptionId);
+    // })
+    // .on('data', (blockHeader) => {
+    //   console.log('Data: ' + blockHeader);
+    // })
+    // .on('error', console.error);
 
-    subscription.unsubscribe((error, success) => {
-        if (success) {
-            console.log('Successfully unsubscribed!');
-        }
-    });
+    // subscription.unsubscribe((error, success) => {
+    //     if (success) {
+    //         console.log('Successfully unsubscribed!');
+    //     }
+    // });
 
   }
 
@@ -166,9 +176,9 @@ export class CanvasComponent implements OnInit, OnDestroy {
 
   getBlock(block: any) {
     this.latestBlock = block;
-    this.web3.eth.getBlock(block, true).then(result => {
-      this.createEth(result.transactions);
-    });
+    // this.web3.eth.getBlock(block, true).then(result => {
+    //   this.createEth(result.transactions);
+    // });
   }
 
   createEth(transactions) {
