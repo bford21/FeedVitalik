@@ -132,8 +132,9 @@ export class CanvasComponent implements OnInit, OnDestroy {
         this.storeData();
       }, 1000)
     );
-
-    this.web3 = new Web3(Web3.givenProvider || new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/'));
+    
+    this.web3 = new Web3(new Web3.providers.WebsocketProvider('wss://mainnet.infura.io/ws/v3/53c3f91878ef4f2eb75f11b11e9b0c76'));
+    
 
     // subscribe to new block headers
     const subscription = this.web3.eth.subscribe('newBlockHeaders', (error, result) => {
