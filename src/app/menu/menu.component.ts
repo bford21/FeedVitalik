@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Web3Service } from '../services/web3.service';
 @Component({
   selector: 'app-menu',
   templateUrl: './menu.component.html',
@@ -10,7 +11,11 @@ export class MenuComponent {
   sound;
   background;
 
-  constructor() {}
+  constructor(private web3: Web3Service) {}
+
+  callWeb3(){
+    this.web3.connectAccount();
+  }
 
   convertToEth(wei){
     return wei / 10**18
