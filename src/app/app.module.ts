@@ -7,6 +7,7 @@ import { CanvasComponent } from './canvas/canvas.component';
 import { MenuComponent } from './menu/menu.component'
 import { FormsModule } from '@angular/forms';
 import { Web3Service } from './services/web3.service';
+import { SharedDataService } from './services/shared.service';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,10 @@ import { Web3Service } from './services/web3.service';
     HttpClientModule,
     FormsModule
   ],
-  providers: [Web3Service],
+  providers: [
+    Web3Service,
+    SharedDataService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

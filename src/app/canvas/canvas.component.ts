@@ -1,9 +1,11 @@
-import { Component, OnInit, ViewChild, ElementRef, NgZone, OnDestroy, HostListener, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, NgZone, OnDestroy, HostListener, EventEmitter, Output, Input } from '@angular/core';
 import { Eth } from '../models/eth';
 import Web3 from 'web3';
 import { formatDate } from '@angular/common';
 import { Unicorn } from '../models/unicorn';
 import { Dollar } from '../models/dollar';
+import { SharedDataService } from '../services/shared.service';
+import { Web3Service } from '../services/web3.service';
 
 const vitalikWidth = 90;
 const vitalikHeight = 210;
@@ -37,9 +39,8 @@ export class CanvasComponent implements OnInit, OnDestroy {
   private context: CanvasRenderingContext2D;
 
   vitalikSmile = new Image();
-  vitalikSmileSrc = '../../assets/Images/vitalikSmile_Transparent.png';
   vitalikOpenMouth = new Image();
-  vitalikOpenMouthSrc = '../../assets/Images/vitalikOpenMouth_Transparent.png';
+
   vitalikXCoord;
   vitalikYCoord;
   vitalikSpeed;
@@ -73,7 +74,16 @@ export class CanvasComponent implements OnInit, OnDestroy {
 
   jumping = false;
 
-  constructor(private ngZone: NgZone) {
+  // Nifty Dude
+  niftyId;
+  niftyWealth;
+  niftyHealth;
+  livesLeft = 0;
+
+  constructor(private ngZone: NgZone,
+    private sharedService: SharedDataService,
+    private web3Service: Web3Service
+  ) {
     this.date = formatDate(new Date(), 'yyyy/MM/dd', 'en');
   }
 
@@ -106,13 +116,27 @@ export class CanvasComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.sharedService.niftyDudeId$.subscribe(id => {
+      this.niftyId = id
+      if (id == null) {
+        this.vitalikSmile.src = '../../assets/Images/vitalikSmile_Transparent.png';
+        this.vitalikOpenMouth.src = '../../assets/Images/vitalikOpenMouth_Transparent.png';;
+      } else {
+        this.vitalikSmile.src = 'https://niftydudes.com/img/dudes/' + id + '.png';
+        this.vitalikOpenMouth.src = 'https://niftydudes.com/img/dudes/' + id + '.png';
+        this.getNiftySkills(id);
+      }
+    });
+
+
     this.context = this.canvas.nativeElement.getContext('2d');
     const el = document.getElementById('canvas');
     this.fixDpi(el);
     this.setVitalikSpeed();
     this.context.imageSmoothingEnabled = false;
-    this.vitalikSmile.src = this.vitalikSmileSrc;
-    this.vitalikOpenMouth.src = this.vitalikOpenMouthSrc;
+    
+    this.vitalikSmile.src = '../../assets/Images/vitalikSmile_Transparent.png';
+    this.vitalikOpenMouth.src = '../../assets/Images/vitalikOpenMouth_Transparent.png';
     this.powerUpTimer = this.powerUpLength;
 
     // Redraw canvas every 10ms
@@ -172,18 +196,69 @@ export class CanvasComponent implements OnInit, OnDestroy {
     });
   }
 
+  getNiftySkills(id) {
+    this.web3Service.getNiftySkills(id).then(skills => {
+      this.niftyWealth = skills[3]
+      this.niftyHealth = skills[5]
+      this.setLives();
+      console.log('Nifty Wealth = ' + this.niftyWealth);
+      console.log('Nifty Health = ' + this.niftyHealth);
+    })
+  }
+
+  setLives() {
+    // Sets the number of lives the user has
+    // Nifty dudes with greater than 50 health and less than 80 have 2 lives
+    // Nifty dudes with greater than or equal to 80 health have 3
+    if(this.niftyHealth >= 50 && this.niftyHealth < 80) {
+      this.livesLeft = 1;
+      console.log('Set 2 lives')
+    } else if (this.niftyHealth >= 80) {
+      this.livesLeft = 2;
+      console.log('Set 3 lives')
+    }
+  }
+
   createEth(transactions) {
     transactions.forEach((transaction, index) => {
       if (transaction.value > 0) {
         const newEth = new Eth(this.context, transaction, this.canvasWidth);
         this.eth.push(newEth);
 
-        if ((index % 30) === 0) {
-          const newDollar = new Dollar(this.context, this.canvasWidth);
-          this.dollars.push(newDollar);
-        }
+        this.createDollar(index);
       }
     });
+  }
+
+  createDollar(index) {
+    // One dollar is created every 20 transactions
+    // Nifty dudes with wealth less than 50 dollars are created every 30 transactions
+    // Nifty dudes with wealth greater than or equal to 50 but less than 80 dollars are created every 10 transactions
+    // Nifty dudes with wealth greater than or equal to 80 dollars are created every 5 transactions
+
+    let createDollar = false;
+    if (this.niftyId && this.niftyWealth >= 80) {
+      if ((index % 5) === 0) {
+        createDollar = true
+      }
+    } else if(this.niftyId && this.niftyWealth >= 50 && this.niftyWealth < 80) {
+      if ((index % 10) === 0) {
+        createDollar = true
+      }
+    } else if (this.niftyId && this.niftyWealth < 50) {
+      if ((index % 30) === 0) {
+        createDollar = true
+      }
+    } else {
+      if ((index % 20) === 0) {
+        createDollar = true
+      }
+    }
+
+    if(createDollar){
+      const newDollar = new Dollar(this.context, this.canvasWidth);
+      this.dollars.push(newDollar);
+    }
   }
 
   setVitalikSpeed() {
@@ -226,10 +301,13 @@ export class CanvasComponent implements OnInit, OnDestroy {
         this.dollars.splice(index, 1);
       }
 
-      if (this.isEaten(dollar)) {
+      if (this.isEaten(dollar) && this.livesLeft == 0) {
         this.dollars.splice(index, 1);
         this.context.drawImage(this.vitalikOpenMouth, this.vitalikXCoord, this.vitalikYCoord, vitalikWidth, vitalikHeight);
         this.endGame();
+      } else if (this.isEaten(dollar)) {
+        this.livesLeft = this.livesLeft - 1;
+        this.dollars.splice(index, 1);
       }
       dollar.moveDown();
     });

@@ -9,6 +9,9 @@
                         <a href="#infoTab" aria-controls="infoTab" role="tab" data-toggle="tab" (click)="resetModalWidth()">Info</a>
                       </li>
                       <li role="presentation">
+                        <a href="#characterTab" aria-controls="characterTab" role="tab" data-toggle="tab" (click)="resetModalWidth()">Character</a>
+                      </li>
+                      <li role="presentation">
                         <a href="#transactionsTab" aria-controls="transactionsTab" role="tab" data-toggle="tab" (click)="expandModal()">Transactions</a>
                       </li>
                       <li role="presentation">
@@ -49,12 +52,36 @@
                           
                           <p>Alternatively, consider donating some Eth and help feed me!</p>
                           <form>
+                          <div id="ens" class="input-group">
+                            <span class="input-group-addon">ENS</span>
+                            <input onClick="this.select()" class="form-control" type="text" id="donate" readonly="readonly" value="feedvitalik.eth">
+                          </div>
                           <div class="input-group">
                             <span class="input-group-addon">Ethereum</span>
-                            <input class="form-control" type="text" id="donate" readonly="readonly" value="0xe644be3a05ed983cC18f5c1769fc1A38917ED030">
+                            <input onClick="this.select()" class="form-control" type="text" id="donate" readonly="readonly" value="0xe644be3a05ed983cC18f5c1769fc1A38917ED030">
                           </div>
                           
                         </form>
+                    </div>
+
+                    <div role="tabpanel" class="tab-pane" id="characterTab">
+                      <h2>Choose your character</h2>
+                      <div id="container">
+                        <p>In order to change your character you need to connect your wallet and hold supported NFTs. We currently support NFTs created as part of the
+                          <a href="https://opensea.io/collection/niftydudes">NiftyDudes</a> project as well as NFTs created specifically for
+                          <a href="https://rarible.com/token/0xd07dc4262bcdbf85190c01c996b4c06a461d2430:37133:0xe644be3a05ed983cc18f5c1769fc1a38917ed030" >FeedVitalik</a>
+                        </p>
+
+                        <p>When playing as an NFT character your in game experience may change based on properties of that specific NFT!</p>
+                        <label class="radio-inline no-margin">
+                          <input type="radio" name="background" [value]="id" [(ngModel)]="background" (click)="setCharacter(null)">
+                          <img class="vitalikImg" src="../../assets/Images/vitalikSmile_Transparent.png" />
+                        </label>
+                        <label *ngFor="let id of niftyIds" class="radio-inline no-margin">
+                          <input type="radio" name="background" [value]="id" [(ngModel)]="background" (click)="setCharacter(id)">
+                          <img class="niftyImg" src="https://niftydudes.com/img/dudes/{{id}}.png" />
+                        </label>
+                      </div>
                     </div>
 
                     <div role="tabpanel" class="tab-pane" id="scoresTab">
@@ -151,19 +178,6 @@
                     </div>
 
 
-                  <!-- <div role="tabpanel" class="tab-pane" id="bugReportTab">
-                    <h3>Have a feature request? Want to report a bug? Say hi? Use this form.</h3>
-                    <form name="contact" method="POST" data-netlify="true">
-                      <p>
-                        <label>Message: <textarea name="message"></textarea></label>
-                      </p>
-                      <p>
-                        <button type="submit">Send</button>
-                      </p>
-                    </form>
-                  </div> -->
-
-
                   </div>
                 </div>
             </div>
@@ -171,5 +185,6 @@
     </div>
 </div>
 
-<!-- <button type="button" class="btn btn-primary btn-md" id="menu" data-toggle="modal" data-target="#myModal">Menu</button> -->
-<button type="button" class="btn btn-primary btn-md" id="menu" (click)="callWeb3()">Connect Wallet</button>
+<button #myModal type="button" class="btn btn-primary btn-md" id="menu" data-toggle="modal" data-target="#myModal">Menu</button>
+<button *ngIf="!address" type="button" class="btn btn-primary btn-md" id="connect" (click)="connectWallet()">Connect Wallet</button>
+<button *ngIf="address" type="button" class="btn btn-primary btn-md" id="connect">{{displayAddress}}</button>

@@ -10,6 +10,8 @@ export class AppComponent implements OnInit {
   chew = new Audio("../assets/shortChew.wav"); // buffers automatically when created
   powerupMusic = new Audio("../assets/powerup.mp3");
   gameOverMusic = new Audio("../assets/gameOver.mp3");
+  niftyDudeId;
+
   constructor() {}
 
     ngOnInit() {

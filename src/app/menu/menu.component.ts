@@ -1,4 +1,5 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { SharedDataService } from '../services/shared.service';
 import { Web3Service } from '../services/web3.service';
 @Component({
   selector: 'app-menu',
@@ -6,15 +7,46 @@ import { Web3Service } from '../services/web3.service';
   styleUrls: ['./menu.component.scss']
 })
 export class MenuComponent {
+  @ViewChild('myModal', {static:true}) myModal:ElementRef;
   @Input() eatenTransactions: [];
   @Output() changeSound: EventEmitter<any> = new EventEmitter<any>();
+  @Output() changeCharacter: EventEmitter<any> = new EventEmitter<any>();
   sound;
   background;
+  address
+  niftyIds = []
+  displayAddress;
 
-  constructor(private web3: Web3Service) {}
+  constructor(private web3: Web3Service,
+    private sharedService: SharedDataService
+  ) {}
 
-  callWeb3(){
-    this.web3.connectAccount();
+  connectWallet(){
+    this.web3.connectAccount().then((acc) => {
+      if(acc.length > 0) {
+        this.address = acc.toString();
+        this.displayAddress = this.address.substring(0,6) + '...' + this.address.substring((this.address.length - 4), this.address.length);
+        this.getBalance();
+      }
+    });
+  }
+
+  getBalance() {
+    // TODO: Eventually pass in this.address
+    // hardcode for now for testing purposes
+    // 0x8919014b0f6746407ce40670737bf8aab96f8124
+    // '0x4202c5aa18c934b96bc4aedb3da4593c44076618'
+    this.web3.getNiftyDudes(this.address).then((ids) => {
+      this.niftyIds = ids;
+      if(this.niftyIds.length > 0) {
+        this.myModal.nativeElement.click();
+      }
+      // If user holds 1 nifty dude automatically set it as character
+      // Will only use as a fall back if i can't open modal automaitcally to specific tab
+      // if(this.niftyIds.length = 1) {
+      //   this.setCharacter(this.niftyIds[0])
+      // }
+    })
   }
 
   convertToEth(wei){
@@ -104,6 +136,10 @@ export class MenuComponent {
     this.background = value;
     this.storeSettings();
     document.getElementById('bg').style.backgroundImage = "url('../assets/Images/backgrounds/bg" + this.background + ".png')"
+  }
+
+  setCharacter(id) {
+    this.sharedService.niftyDudeId$.next(id)
   }
 
   storeSettings() {

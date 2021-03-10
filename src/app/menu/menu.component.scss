@@ -6,6 +6,14 @@
     margin: 10px;
 }
 
+#connect {
+    font-family: 'Press Start 2P';
+    position: absolute;
+    bottom: 94%;
+    right: 120px;
+    margin: 10px;
+}
+
 #container {
     overflow: auto;
 }
@@ -20,4 +28,20 @@
 
 .no-margin {
     margin-left: 0px;
+}
+
+.niftyImg {
+    width: 62px;
+    height: 124px;
+    margin: 10px;
+}
+
+.vitalikImg{
+    width: 64px;
+    height: 150px;
+    margin: 10px;
+}
+
+#ens {
+    margin-bottom: 10px;
 }
