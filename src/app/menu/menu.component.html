@@ -74,11 +74,11 @@
 
                         <p>When playing as an NFT character your in game experience may change based on properties of that specific NFT!</p>
                         <label class="radio-inline no-margin">
-                          <input type="radio" name="background" [value]="id" [(ngModel)]="background" (click)="setCharacter(null)">
+                          <input type="radio" name="background" (click)="setCharacter(null)">
                           <img class="vitalikImg" src="../../assets/Images/vitalikSmile_Transparent.png" />
                         </label>
                         <label *ngFor="let id of niftyIds" class="radio-inline no-margin">
-                          <input type="radio" name="background" [value]="id" [(ngModel)]="background" (click)="setCharacter(id)">
+                          <input type="radio" name="background" [value]="id" (click)="setCharacter(id)">
                           <img class="niftyImg" src="https://niftydudes.com/img/dudes/{{id}}.png" />
                         </label>
                       </div>
