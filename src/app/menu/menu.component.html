@@ -9,7 +9,10 @@
                         <a href="#infoTab" aria-controls="infoTab" role="tab" data-toggle="tab" (click)="resetModalWidth()">Info</a>
                       </li>
                       <li role="presentation">
-                        <a href="#characterTab" aria-controls="characterTab" role="tab" data-toggle="tab" (click)="resetModalWidth()">Character</a>
+                        <a #char href="#characterTab" aria-controls="characterTab" role="tab" data-toggle="tab" (click)="resetModalWidth()">Character</a>
+                      </li>
+                      <li role="presentation">
+                        <a href="#storeTab" aria-controls="storeTab" role="tab" data-toggle="tab" (click)="expandModal()">Store</a>
                       </li>
                       <li role="presentation">
                         <a href="#transactionsTab" aria-controls="transactionsTab" role="tab" data-toggle="tab" (click)="expandModal()">Transactions</a>
@@ -65,16 +68,15 @@
                     </div>
 
                     <div role="tabpanel" class="tab-pane" id="characterTab">
-                      <h2>Choose your character</h2>
                       <div id="container">
-                        <p>In order to change your character you need to connect your wallet and hold supported NFTs. We currently support NFTs created as part of the
-                          <a href="https://opensea.io/collection/niftydudes">NiftyDudes</a> project as well as NFTs created specifically for
-                          <a href="https://rarible.com/token/0xd07dc4262bcdbf85190c01c996b4c06a461d2430:37133:0xe644be3a05ed983cc18f5c1769fc1a38917ed030" >FeedVitalik</a>
+                        <p>In order to change your character you need to connect your wallet and hold supported NFTs. We currently support NFTs created specifically for
+                          <a href="https://opensea.io/collection/feedvitalik">FeedVitalik</a> 
+                          as well as the <a href="https://opensea.io/collection/niftydudes">NiftyDudes</a> project.
                         </p>
 
                         <p>When playing as an NFT character your in game experience may change based on properties of that specific NFT!</p>
                         <label class="radio-inline no-margin">
-                          <input type="radio" name="background" (click)="setCharacter(null)">
+                          <input type="radio" name="background" [value]="id" (click)="setCharacter(null)">
                           <img class="vitalikImg" src="../../assets/Images/vitalikSmile_Transparent.png" />
                         </label>
                         <label *ngFor="let id of niftyIds" class="radio-inline no-margin">
@@ -82,6 +84,14 @@
                           <img class="niftyImg" src="https://niftydudes.com/img/dudes/{{id}}.png" />
                         </label>
                       </div>
+                    </div>
+
+                    <div role="tabpanel" class="tab-pane" id="storeTab">
+                        <iframe src='https://opensea.io/collection/feedvitalik?embed=true'
+                          width='100%'
+                          height='100%'
+                          frameborder='0'
+                          allowfullscreen></iframe>
                     </div>
 
                     <div role="tabpanel" class="tab-pane" id="scoresTab">
@@ -185,6 +195,18 @@
     </div>
 </div>
 
-<button #myModal type="button" class="btn btn-primary btn-md" id="menu" data-toggle="modal" data-target="#myModal">Menu</button>
+<button #myModal type="button" class="btn btn-primary btn-md" id="menu" data-toggle="modal" data-target="#myModal" (focus)="preventFocus($event)">Menu</button>
 <button *ngIf="!address" type="button" class="btn btn-primary btn-md" id="connect" (click)="connectWallet()">Connect Wallet</button>
 <button *ngIf="address" type="button" class="btn btn-primary btn-md" id="connect">{{displayAddress}}</button>
+
+<div class="traits-container">
+  <ul>
+    <li *ngIf="unisocksHolder" class="walletTraits">Making it rain Unisocks (Hold $SOCKS)</li>
+    <li *ngIf="niftyWealth >= 80" class="walletTraits">4X More Dollah Dollah Bills (Nifty Dude Wealth >= 80)</li>
+    <li *ngIf="niftyWealth >= 50 && niftyWealth < 80" class="walletTraits">2X More Dollah Dollah Bills (Nifty Dude Wealth >= 50)</li>
+    <li *ngIf="niftyWealth < 50 && niftyWealth != null" class="walletTraits">1.5X Less Dollah Dollah Bills (Nifty Dude Wealth < 50)</li>
+    <li *ngIf="niftyHealth >= 80" class="walletTraits"> 2 additional lives (Nifty Dude Health >= 80)</li>
+    <li *ngIf="niftyHealth >= 50 && niftyHealth < 80" class="walletTraits"> 1 live (Nifty Dude Health >= 50)</li>
+    <li *ngIf="niftyPower >= 50" class="walletTraits"> Super Jump (Nifty Dude Power >= 50)</li>
+  </ul>
+</div>

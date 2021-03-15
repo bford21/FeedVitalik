@@ -5,7 +5,6 @@ import { formatDate } from '@angular/common';
 import { Unicorn } from '../models/unicorn';
 import { Dollar } from '../models/dollar';
 import { SharedDataService } from '../services/shared.service';
-import { Web3Service } from '../services/web3.service';
 
 const vitalikWidth = 90;
 const vitalikHeight = 210;
@@ -74,15 +73,17 @@ export class CanvasComponent implements OnInit, OnDestroy {
 
   jumping = false;
 
-  // Nifty Dude
+  // Wallet Variables
+  address;
   niftyId;
   niftyWealth;
   niftyHealth;
+  niftyPower;
   livesLeft = 0;
+  unisocksHolder = false;
 
   constructor(private ngZone: NgZone,
-    private sharedService: SharedDataService,
-    private web3Service: Web3Service
+    private sharedService: SharedDataService
   ) {
     this.date = formatDate(new Date(), 'yyyy/MM/dd', 'en');
   }
@@ -124,8 +125,27 @@ export class CanvasComponent implements OnInit, OnDestroy {
       } else {
         this.vitalikSmile.src = 'https://niftydudes.com/img/dudes/' + id + '.png';
         this.vitalikOpenMouth.src = 'https://niftydudes.com/img/dudes/' + id + '.png';
-        this.getNiftySkills(id);
       }
+    });
+
+    this.sharedService.unisocksHolder$.subscribe(holder => {
+      if (holder) {
+        this.unisocksHolder = holder;
+      }
+    });
+
+    this.sharedService.address$.subscribe(address => {
+      this.address = address;
+    });
+    this.sharedService.health$.subscribe(health => {
+      this.niftyHealth = health;
+      this.setLives();
+    });
+    this.sharedService.wealth$.subscribe(wealth => {
+      this.niftyWealth = wealth;
+    });
+    this.sharedService.power$.subscribe(power => {
+      this.niftyPower = power;
     });
 
 
@@ -196,33 +216,21 @@ export class CanvasComponent implements OnInit, OnDestroy {
     });
   }
 
-  getNiftySkills(id) {
-    this.web3Service.getNiftySkills(id).then(skills => {
-      this.niftyWealth = skills[3]
-      this.niftyHealth = skills[5]
-      this.setLives();
-      console.log('Nifty Wealth = ' + this.niftyWealth);
-      console.log('Nifty Health = ' + this.niftyHealth);
-    })
-  }
-
   setLives() {
     // Sets the number of lives the user has
     // Nifty dudes with greater than 50 health and less than 80 have 2 lives
     // Nifty dudes with greater than or equal to 80 health have 3
     if(this.niftyHealth >= 50 && this.niftyHealth < 80) {
       this.livesLeft = 1;
-      console.log('Set 2 lives')
     } else if (this.niftyHealth >= 80) {
       this.livesLeft = 2;
-      console.log('Set 3 lives')
     }
   }
 
   createEth(transactions) {
     transactions.forEach((transaction, index) => {
       if (transaction.value > 0) {
-        const newEth = new Eth(this.context, transaction, this.canvasWidth);
+        const newEth = new Eth(this.context, transaction, this.canvasWidth, this.unisocksHolder);
         this.eth.push(newEth);
 
         this.createDollar(index);
@@ -269,10 +277,17 @@ export class CanvasComponent implements OnInit, OnDestroy {
     this.clearCanvas();
 
     if (this.jumping === true) {
-      if (this.vitalikYCoord > (this.groundYCoord - (vitalikHeight))) {
-        this.vitalikYCoord -= 30;
+      let speed = 30;
+      let jumpHeight = 1;
+      if(this.niftyPower >= 50) {
+        jumpHeight = 150;
+        speed = 60;
+      }
+
+      if (this.vitalikYCoord > (this.groundYCoord - (vitalikHeight + jumpHeight))) {
+        this.vitalikYCoord -= speed;
       } else {
-        if (this.vitalikYCoord < ((this.canvasHeight - vitalikHeight) - 31)) {
+        if (this.vitalikYCoord < ((this.canvasHeight - (vitalikHeight + jumpHeight)) - (speed + 1))) {
           this.vitalikYCoord = this.groundYCoord;
           this.jumping = false;
         }
@@ -498,7 +513,6 @@ export class CanvasComponent implements OnInit, OnDestroy {
   }
 
   jump() {
-    console.log('jump');
     this.jumping = true;
   }
 

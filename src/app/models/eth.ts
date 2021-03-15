@@ -13,7 +13,16 @@ export class Eth {
     private ethXLSrc = '../../assets/Images/eth_xl.png';
     private ethXXLSrc = '../../assets/Images/eth_xl.png';
 
-    constructor(private context: CanvasRenderingContext2D, transaction, canvasWidth) {
+
+    constructor(private context: CanvasRenderingContext2D, transaction, canvasWidth, unisocks) {
+        if(unisocks){
+            this.ethXSSrc = '../../assets/Images/unisocks.png';
+            this.ethSmallSrc = '../../assets/Images/unisocks.png';
+            this.ethMedSrc = '../../assets/Images/unisocks.png';
+            this.ethLargeSrc = '../../assets/Images/unisocks.png';
+            this.ethXLSrc = '../../assets/Images/unisocks.png';
+            this.ethXXLSrc = '../../assets/Images/unisocks.png';
+        }
         this.transaction = transaction;
         this.setSize(transaction.value);
         this.setSpeed(this.convertToGwei(transaction.gasPrice));
