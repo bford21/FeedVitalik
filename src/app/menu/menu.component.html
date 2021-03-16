@@ -79,8 +79,12 @@
                           <input type="radio" name="background" [value]="id" (click)="setCharacter(null)">
                           <img class="vitalikImg" src="../../assets/Images/vitalikSmile_Transparent.png" />
                         </label>
-                        <label *ngFor="let id of niftyIds" class="radio-inline no-margin">
+                        <label *ngFor="let id of feedVitalikIds" class="radio-inline no-margin">
                           <input type="radio" name="background" [value]="id" (click)="setCharacter(id)">
+                          <img class="vitalikImg" src="../../assets/Images/vitalik collection/{{id}}.png" />
+                        </label>
+                        <label *ngFor="let id of niftyIds" class="radio-inline no-margin">
+                          <input type="radio" name="background" [value]="id" (click)="setCharacter(id, false)">
                           <img class="niftyImg" src="https://niftydudes.com/img/dudes/{{id}}.png" />
                         </label>
                       </div>

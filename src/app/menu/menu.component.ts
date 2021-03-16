@@ -1,6 +1,8 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { SharedDataService } from '../services/shared.service';
 import { Web3Service } from '../services/web3.service';
+import tokenMap from '../feed_vitalik_token_id_map.json'
 @Component({
   selector: 'app-menu',
   templateUrl: './menu.component.html',
@@ -16,15 +18,16 @@ export class MenuComponent {
   background;
   address
   niftyIds = []
-  selectedNiftyDudeId;
   displayAddress;
   unisocksHolder = false;
   niftyWealth;
   niftyHealth;
   niftyPower;
+  feedVitalikIds = []
 
   constructor(private web3: Web3Service,
-    private sharedService: SharedDataService
+    private sharedService: SharedDataService,
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
@@ -33,8 +36,7 @@ export class MenuComponent {
     });
 
     this.sharedService.niftyDudeId$.subscribe(id => {
-      this.selectedNiftyDudeId = id;
-      this.getNiftySkills(this.selectedNiftyDudeId);
+      this.getNiftySkills(id);
     });
 
     this.sharedService.health$.subscribe(health => {
@@ -64,6 +66,7 @@ export class MenuComponent {
         this.clearTraits(true);
         this.getNiftyDudesBalance();
         this.getUnisocksBalance();
+        this.getFeedVitalikBalance();
       }
     });
   }
@@ -81,6 +84,21 @@ export class MenuComponent {
     this.sharedService.niftyDudeId$.next(null);
   }
 
+  getFeedVitalikBalance(){
+    const url = "https://api.opensea.io/api/v1/assets?owner=" + this.address + "&token_ids=104153413670663298601451918013900788479056968112890839500332734933049192480769&token_ids=104153413670663298601451918013900788479056968112890839500332734931949680852993&token_ids=104153413670663298601451918013900788479056968112890839500332734930850169225217&token_ids=104153413670663298601451918013900788479056968112890839500332734929750657597441&token_ids=104153413670663298601451918013900788479056968112890839500332734928651145969665&token_ids=104153413670663298601451918013900788479056968112890839500332734927551634341889&token_ids=104153413670663298601451918013900788479056968112890839500332734926452122714113&token_ids=104153413670663298601451918013900788479056968112890839500332734925352611086337&token_ids=104153413670663298601451918013900788479056968112890839500332734924253099458561&token_ids=104153413670663298601451918013900788479056968112890839500332734923153587830785&token_ids=104153413670663298601451918013900788479056968112890839500332734922054076203009&token_ids=104153413670663298601451918013900788479056968112890839500332734920954564575233&token_ids=104153413670663298601451918013900788479056968112890839500332734919855052947457&token_ids=104153413670663298601451918013900788479056968112890839500332734918755541319681&token_ids=104153413670663298601451918013900788479056968112890839500332734917656029691905&token_ids=104153413670663298601451918013900788479056968112890839500332734916556518064129&token_ids=104153413670663298601451918013900788479056968112890839500332734915457006436353&token_ids=104153413670663298601451918013900788479056968112890839500332734914357494808577&token_ids=104153413670663298601451918013900788479056968112890839500332734913257983180801&token_ids=104153413670663298601451918013900788479056968112890839500332734912158471553025&token_ids=104153413670663298601451918013900788479056968112890839500332734911058959925249&limit=25"
+    this.http.get<any>(url).subscribe(data => {
+      console.log(data.assets)
+      data.assets.forEach(asset => {
+        for (var key in tokenMap) {
+          if (asset.token_id == key){
+            this.feedVitalikIds.push(tokenMap[key])    
+          }
+        }
+      });
+      console.log(this.feedVitalikIds)
+    })
+  }
+
   getNiftyDudesBalance() {
     // TODO: Eventually pass in this.address
 
@@ -92,11 +110,6 @@ export class MenuComponent {
         this.myModal.nativeElement.click();
         this.char.nativeElement.click();
       }
-      // If user holds 1 nifty dude automatically set it as character
-      // Will only use as a fall back if i can't open modal automaitcally to specific tab
-      // if(this.niftyIds.length = 1) {
-      //   this.setCharacter(this.niftyIds[0])
-      // }
     })
   }
 
@@ -207,9 +220,16 @@ export class MenuComponent {
     document.getElementById('bg').style.backgroundImage = "url('../assets/Images/backgrounds/bg" + this.background + ".png')"
   }
 
-  setCharacter(id) {
+  setCharacter(id, vitalik=true) {
     this.clearTraits();
-    this.sharedService.niftyDudeId$.next(id)
+    if (id === null) {
+      this.sharedService.vitalikId$.next(id)
+      this.sharedService.niftyDudeId$.next(id)
+    } else if (vitalik){
+      this.sharedService.vitalikId$.next(id)
+    } else {
+      this.sharedService.niftyDudeId$.next(id)
+    }
   }
 
   storeSettings() {

@@ -128,6 +128,17 @@ export class CanvasComponent implements OnInit, OnDestroy {
       }
     });
 
+    this.sharedService.vitalikId$.subscribe(id => {
+      this.niftyId = id
+      if (id == null) {
+        this.vitalikSmile.src = '../../assets/Images/vitalikSmile_Transparent.png';
+        this.vitalikOpenMouth.src = '../../assets/Images/vitalikOpenMouth_Transparent.png';;
+      } else {
+        this.vitalikSmile.src = '../../assets/Images/vitalik collection/' + id + '.png';
+        this.vitalikOpenMouth.src = '../../assets/Images/vitalik collection/' + id + '.png';
+      }
+    });
+
     this.sharedService.unisocksHolder$.subscribe(holder => {
       if (holder) {
         this.unisocksHolder = holder;
