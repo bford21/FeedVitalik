@@ -46,8 +46,6 @@
                           <p>Use the spacebar to jump.</p>
 
                           <h3>Credits</h3>
-                          <p>8-bit art created using <a href="https://make8bitart.com" >make8bitart.com</a> Thanks <a href="https://twitter.com/jennschiffer">@jennschiffer</a>!</p>
-                          
                           <p>Background music by <a href="http://www.twinmusicom.org" target="_blank">Twin Musicom</a></p>
                           <p>Sound effects obtained from <a href="https://www.zapsplat.com" target="_blank">zapsplat</a></p>
                           <h3>Support</h3>
@@ -201,7 +199,7 @@
 
 <button #myModal type="button" class="btn btn-primary btn-md" id="menu" data-toggle="modal" data-target="#myModal" (focus)="preventFocus($event)">Menu</button>
 <button *ngIf="!address" type="button" class="btn btn-primary btn-md" id="connect" (click)="connectWallet()">Connect Wallet</button>
-<button *ngIf="address" type="button" class="btn btn-primary btn-md" id="connect">{{displayAddress}}</button>
+<button *ngIf="address" type="button" class="btn btn-primary btn-md" id="connect" disabled title="Refresh page to change wallet">{{displayAddress}}</button>
 
 <div class="traits-container">
   <ul>
