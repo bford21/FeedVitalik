@@ -9,6 +9,12 @@
                         <a href="#infoTab" aria-controls="infoTab" role="tab" data-toggle="tab" (click)="resetModalWidth()">Info</a>
                       </li>
                       <li role="presentation">
+                        <a #char href="#characterTab" aria-controls="characterTab" role="tab" data-toggle="tab" (click)="resetModalWidth()">Character</a>
+                      </li>
+                      <li role="presentation">
+                        <a href="#storeTab" aria-controls="storeTab" role="tab" data-toggle="tab" (click)="expandModal()">Store</a>
+                      </li>
+                      <li role="presentation">
                         <a href="#transactionsTab" aria-controls="transactionsTab" role="tab" data-toggle="tab" (click)="expandModal()">Transactions</a>
                       </li>
                       <li role="presentation">
@@ -40,8 +46,6 @@
                           <p>Use the spacebar to jump.</p>
 
                           <h3>Credits</h3>
-                          <p>8-bit art created using <a href="https://make8bitart.com" >make8bitart.com</a> Thanks <a href="https://twitter.com/jennschiffer">@jennschiffer</a>!</p>
-                          
                           <p>Background music by <a href="http://www.twinmusicom.org" target="_blank">Twin Musicom</a></p>
                           <p>Sound effects obtained from <a href="https://www.zapsplat.com" target="_blank">zapsplat</a></p>
                           <h3>Support</h3>
@@ -49,12 +53,47 @@
                           
                           <p>Alternatively, consider donating some Eth and help feed me!</p>
                           <form>
+                          <div id="ens" class="input-group">
+                            <span class="input-group-addon">ENS</span>
+                            <input onClick="this.select()" class="form-control" type="text" id="donate" readonly="readonly" value="feedvitalik.eth">
+                          </div>
                           <div class="input-group">
                             <span class="input-group-addon">Ethereum</span>
-                            <input class="form-control" type="text" id="donate" readonly="readonly" value="0xe644be3a05ed983cC18f5c1769fc1A38917ED030">
+                            <input onClick="this.select()" class="form-control" type="text" id="donate" readonly="readonly" value="0xe644be3a05ed983cC18f5c1769fc1A38917ED030">
                           </div>
                           
                         </form>
+                    </div>
+
+                    <div role="tabpanel" class="tab-pane" id="characterTab">
+                      <div id="container">
+                        <p>In order to change your character you need to connect your wallet and hold supported NFTs. We currently support NFTs created specifically for
+                          <a href="https://opensea.io/collection/feedvitalik">FeedVitalik</a> 
+                          as well as the <a href="https://opensea.io/collection/niftydudes">NiftyDudes</a> project.
+                        </p>
+
+                        <p>When playing as an NFT character your in game experience may change based on properties of that specific NFT!</p>
+                        <label class="radio-inline no-margin">
+                          <input type="radio" name="background" (click)="setCharacter(null)">
+                          <img class="vitalikImg" src="../../assets/Images/vitalikSmile_Transparent.png" />
+                        </label>
+                        <label *ngFor="let id of feedVitalikIds" class="radio-inline no-margin">
+                          <input type="radio" name="background" [value]="id" (click)="setCharacter(id)">
+                          <img class="vitalikImg" src="../../assets/Images/vitalik collection/{{id}}.png" />
+                        </label>
+                        <label *ngFor="let id of niftyIds" class="radio-inline no-margin">
+                          <input type="radio" name="background" [value]="id" (click)="setCharacter(id, false)">
+                          <img class="niftyImg" src="https://niftydudes.com/img/dudes/{{id}}.png" />
+                        </label>
+                      </div>
+                    </div>
+
+                    <div role="tabpanel" class="tab-pane" id="storeTab">
+                        <iframe src='https://opensea.io/collection/feedvitalik?embed=true'
+                          width='100%'
+                          height='100%'
+                          frameborder='0'
+                          allowfullscreen></iframe>
                     </div>
 
                     <div role="tabpanel" class="tab-pane" id="scoresTab">
@@ -151,19 +190,6 @@
                     </div>
 
 
-                  <!-- <div role="tabpanel" class="tab-pane" id="bugReportTab">
-                    <h3>Have a feature request? Want to report a bug? Say hi? Use this form.</h3>
-                    <form name="contact" method="POST" data-netlify="true">
-                      <p>
-                        <label>Message: <textarea name="message"></textarea></label>
-                      </p>
-                      <p>
-                        <button type="submit">Send</button>
-                      </p>
-                    </form>
-                  </div> -->
-
-
                   </div>
                 </div>
             </div>
@@ -171,4 +197,22 @@
     </div>
 </div>
 
-<button type="button" class="btn btn-primary btn-md" id="menu" data-toggle="modal" data-target="#myModal">Menu</button>
+<button #myModal type="button" class="btn btn-primary btn-md" id="menu" data-toggle="modal" data-target="#myModal" (focus)="preventFocus($event)">Menu</button>
+<button *ngIf="!address" type="button" class="btn btn-primary btn-md" id="connect" (click)="connectWallet()">Connect Wallet</button>
+<button *ngIf="address" type="button" class="btn btn-primary btn-md" id="connect" disabled title="Refresh page to change wallet">{{displayAddress}}</button>
+
+<div class="traits-container">
+  <ul>
+    <li *ngIf="unisocksHolder" class="walletTraits">Making it rain Unisocks (Hold $SOCKS)</li>
+    <li *ngIf="niftyWealth >= 80" class="walletTraits">4X More Dollah Dollah Bills (Wealth >= 80)</li>
+    <li *ngIf="niftyWealth >= 50 && niftyWealth < 80" class="walletTraits">2X More Dollah Dollah Bills (Wealth >= 50)</li>
+    <li *ngIf="niftyWealth < 50 && niftyWealth != null" class="walletTraits">1.5X Less Dollah Dollah Bills (Wealth < 50)</li>
+    <li *ngIf="niftyHealth >= 80" class="walletTraits"> 2 additional lives (Health >= 80)</li>
+    <li *ngIf="niftyHealth >= 50 && niftyHealth < 80" class="walletTraits"> 1 live (Health >= 50)</li>
+    <li *ngIf="niftyPower >= 50" class="walletTraits"> Super Jump (Power >= 50)</li>
+    <li *ngIf="niftySpeed >= 80" class="walletTraits"> Move fast (Power >= 80)</li>
+    <li *ngIf="niftySpeed < 20 && niftyWealth != null" class="walletTraits"> 2X Slower Speed (Power < 20)</li>
+    <li *ngIf="niftyLuck > 75" class="walletTraits">Powerups last longer (Luck > 75)</li>
+    <li *ngIf="niftyLuck < 20 && niftyLuck != null" class="walletTraits">No powerups (Luck < 20)</li>
+  </ul>
+</div>

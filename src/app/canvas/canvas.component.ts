@@ -1,9 +1,10 @@
-import { Component, OnInit, ViewChild, ElementRef, NgZone, OnDestroy, HostListener, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, NgZone, OnDestroy, HostListener, EventEmitter, Output, Input } from '@angular/core';
 import { Eth } from '../models/eth';
 import Web3 from 'web3';
 import { formatDate } from '@angular/common';
 import { Unicorn } from '../models/unicorn';
 import { Dollar } from '../models/dollar';
+import { SharedDataService } from '../services/shared.service';
 
 const vitalikWidth = 90;
 const vitalikHeight = 210;
@@ -37,9 +38,8 @@ export class CanvasComponent implements OnInit, OnDestroy {
   private context: CanvasRenderingContext2D;
 
   vitalikSmile = new Image();
-  vitalikSmileSrc = '../../assets/Images/vitalikSmile_Transparent.png';
   vitalikOpenMouth = new Image();
-  vitalikOpenMouthSrc = '../../assets/Images/vitalikOpenMouth_Transparent.png';
+
   vitalikXCoord;
   vitalikYCoord;
   vitalikSpeed;
@@ -73,7 +73,20 @@ export class CanvasComponent implements OnInit, OnDestroy {
 
   jumping = false;
 
-  constructor(private ngZone: NgZone) {
+  // Wallet Variables
+  address;
+  niftyId;
+  niftyWealth;
+  niftyHealth;
+  niftyPower;
+  niftySpeed;
+  niftyLuck;
+  livesLeft = 0;
+  unisocksHolder = false;
+
+  constructor(private ngZone: NgZone,
+    private sharedService: SharedDataService
+  ) {
     this.date = formatDate(new Date(), 'yyyy/MM/dd', 'en');
   }
 
@@ -106,13 +119,64 @@ export class CanvasComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.sharedService.niftyDudeId$.subscribe(id => {
+      this.niftyId = id
+      if (id == null) {
+        this.vitalikSmile.src = '../../assets/Images/vitalikSmile_Transparent.png';
+        this.vitalikOpenMouth.src = '../../assets/Images/vitalikOpenMouth_Transparent.png';;
+      } else {
+        this.vitalikSmile.src = 'https://niftydudes.com/img/dudes/' + id + '.png';
+        this.vitalikOpenMouth.src = 'https://niftydudes.com/img/dudes/' + id + '.png';
+      }
+    });
+
+    this.sharedService.vitalikId$.subscribe(id => {
+      this.niftyId = id
+      if (id == null) {
+        this.vitalikSmile.src = '../../assets/Images/vitalikSmile_Transparent.png';
+        this.vitalikOpenMouth.src = '../../assets/Images/vitalikOpenMouth_Transparent.png';;
+      } else {
+        this.vitalikSmile.src = '../../assets/Images/vitalik collection/' + id + '.png';
+        this.vitalikOpenMouth.src = '../../assets/Images/vitalik collection/' + id + '.png';
+      }
+    });
+
+    this.sharedService.unisocksHolder$.subscribe(holder => {
+      if (holder) {
+        this.unisocksHolder = holder;
+      }
+    });
+
+    this.sharedService.address$.subscribe(address => {
+      this.address = address;
+    });
+
+    this.sharedService.health$.subscribe(health => {
+      this.niftyHealth = health;
+      this.setLives();
+    });
+    this.sharedService.wealth$.subscribe(wealth => {
+      this.niftyWealth = wealth;
+    });
+    this.sharedService.power$.subscribe(power => {
+      this.niftyPower = power;
+    });
+    this.sharedService.speed$.subscribe(speed => {
+      this.niftySpeed = speed;
+    });
+    this.sharedService.luck$.subscribe(luck => {
+      this.niftyLuck = luck;
+    })
+
+
     this.context = this.canvas.nativeElement.getContext('2d');
     const el = document.getElementById('canvas');
     this.fixDpi(el);
     this.setVitalikSpeed();
     this.context.imageSmoothingEnabled = false;
-    this.vitalikSmile.src = this.vitalikSmileSrc;
-    this.vitalikOpenMouth.src = this.vitalikOpenMouthSrc;
+    
+    this.vitalikSmile.src = '../../assets/Images/vitalikSmile_Transparent.png';
+    this.vitalikOpenMouth.src = '../../assets/Images/vitalikOpenMouth_Transparent.png';
     this.powerUpTimer = this.powerUpLength;
 
     // Redraw canvas every 10ms
@@ -172,18 +236,57 @@ export class CanvasComponent implements OnInit, OnDestroy {
     });
   }
 
+  setLives() {
+    // Sets the number of lives the user has
+    // Nifty dudes with greater than 50 health and less than 80 have 2 lives
+    // Nifty dudes with greater than or equal to 80 health have 3
+    if(this.niftyHealth >= 50 && this.niftyHealth < 80) {
+      this.livesLeft = 1;
+    } else if (this.niftyHealth >= 80) {
+      this.livesLeft = 2;
+    }
+  }
+
   createEth(transactions) {
     transactions.forEach((transaction, index) => {
       if (transaction.value > 0) {
-        const newEth = new Eth(this.context, transaction, this.canvasWidth);
+        const newEth = new Eth(this.context, transaction, this.canvasWidth, this.unisocksHolder);
         this.eth.push(newEth);
 
-        if ((index % 30) === 0) {
-          const newDollar = new Dollar(this.context, this.canvasWidth);
-          this.dollars.push(newDollar);
-        }
+        this.createDollar(index);
       }
     });
+  }
+
+  createDollar(index) {
+    // One dollar is created every 20 transactions
+    // Nifty dudes with wealth less than 50 dollars are created every 30 transactions
+    // Nifty dudes with wealth greater than or equal to 50 but less than 80 dollars are created every 10 transactions
+    // Nifty dudes with wealth greater than or equal to 80 dollars are created every 5 transactions
+
+    let createDollar = false;
+    if (this.niftyId && this.niftyWealth >= 80) {
+      if ((index % 5) === 0) {
+        createDollar = true
+      }
+    } else if(this.niftyId && this.niftyWealth >= 50 && this.niftyWealth < 80) {
+      if ((index % 10) === 0) {
+        createDollar = true
+      }
+    } else if (this.niftyId && this.niftyWealth < 50) {
+      if ((index % 30) === 0) {
+        createDollar = true
+      }
+    } else {
+      if ((index % 20) === 0) {
+        createDollar = true
+      }
+    }
+
+    if(createDollar){
+      const newDollar = new Dollar(this.context, this.canvasWidth);
+      this.dollars.push(newDollar);
+    }
   }
 
   setVitalikSpeed() {
@@ -194,10 +297,17 @@ export class CanvasComponent implements OnInit, OnDestroy {
     this.clearCanvas();
 
     if (this.jumping === true) {
-      if (this.vitalikYCoord > (this.groundYCoord - (vitalikHeight))) {
-        this.vitalikYCoord -= 30;
+      let speed = 30;
+      let jumpHeight = 1;
+      if(this.niftyPower >= 50) {
+        jumpHeight = 150;
+        speed = 60;
+      }
+
+      if (this.vitalikYCoord > (this.groundYCoord - (vitalikHeight + jumpHeight))) {
+        this.vitalikYCoord -= speed;
       } else {
-        if (this.vitalikYCoord < ((this.canvasHeight - vitalikHeight) - 31)) {
+        if (this.vitalikYCoord < ((this.canvasHeight - (vitalikHeight + jumpHeight)) - (speed + 1))) {
           this.vitalikYCoord = this.groundYCoord;
           this.jumping = false;
         }
@@ -226,10 +336,13 @@ export class CanvasComponent implements OnInit, OnDestroy {
         this.dollars.splice(index, 1);
       }
 
-      if (this.isEaten(dollar)) {
+      if (this.isEaten(dollar) && this.livesLeft == 0) {
         this.dollars.splice(index, 1);
         this.context.drawImage(this.vitalikOpenMouth, this.vitalikXCoord, this.vitalikYCoord, vitalikWidth, vitalikHeight);
         this.endGame();
+      } else if (this.isEaten(dollar)) {
+        this.livesLeft = this.livesLeft - 1;
+        this.dollars.splice(index, 1);
       }
       dollar.moveDown();
     });
@@ -242,7 +355,11 @@ export class CanvasComponent implements OnInit, OnDestroy {
 
       if (this.powerUpTimer > 0) {
         // Subtract the current rate that drawCanvas is being called
-        this.powerUpTimer -= canvasRedrawRate;
+        if(this.niftyLuck > 75) {
+          this.powerUpTimer -= canvasRedrawRate - 10;
+        } else {
+          this.powerUpTimer -= canvasRedrawRate;
+        }
         this.drawPowerUpMeter();
       } else if (this.powerUpTimer <= 0) {
         // Powerup has ran out of time, reset
@@ -257,20 +374,22 @@ export class CanvasComponent implements OnInit, OnDestroy {
       this.drawWaitingForBlock();
 
       // Create new unicorn if one does not exist
-      if (this.unicorn === undefined) {
+      if (this.unicorn === undefined && this.niftyLuck !== null && this.niftyLuck > 20) {
         this.unicorn = new Unicorn(this.context, this.canvasWidth, this.canvasHeight);
       }
 
-      if (this.checkIfRidingUnicorn(this.unicorn)) {
-        // Only play power up sound once
-        if (this.playPowerUpSound) {
-          this.powerUpSound.emit(true);
-          this.playPowerUpSound = false;
+      if (this.unicorn !== undefined){
+        if (this.checkIfRidingUnicorn(this.unicorn)) {
+          // Only play power up sound once
+          if (this.playPowerUpSound) {
+            this.powerUpSound.emit(true);
+            this.playPowerUpSound = false;
+          }
+          this.powerUpActive = true;
+          this.vitalikSpeed += this.canvasWidth * 0.00055;
+        } else if (this.powerUpActive === false) {
+          this.unicorn.draw();
         }
-        this.powerUpActive = true;
-        this.vitalikSpeed += this.canvasWidth * 0.00055;
-      } else if (this.powerUpActive === false) {
-        this.unicorn.draw();
       }
     }
 
@@ -396,14 +515,31 @@ export class CanvasComponent implements OnInit, OnDestroy {
   }
 
   moveRight() {
+    // let speed = 50;
+    // if(this.niftySpeed >= 80){
+    //   speed = speed + 50
+    // }
     if (this.vitalikXCoord < (this.canvasWidth - 50) ) {
-      this.vitalikXCoord += this.vitalikSpeed;
+      if(this.niftySpeed >= 80) {
+        this.vitalikXCoord += this.vitalikSpeed + 50;
+      }
+      else if(this.niftySpeed < 20 && this.niftySpeed != null) {
+        this.vitalikXCoord += this.vitalikSpeed - 5;
+      } else {
+        this.vitalikXCoord += this.vitalikSpeed;
+      }
     }
   }
 
   moveLeft() {
     if (this.vitalikXCoord > -50) {
-      this.vitalikXCoord -= this.vitalikSpeed;
+      if(this.niftySpeed >= 80) {
+        this.vitalikXCoord -= this.vitalikSpeed + 50;;
+      } else if(this.niftySpeed < 20 && this.niftySpeed != null){
+        this.vitalikXCoord -= (this.vitalikSpeed - 5);
+      } else {
+        this.vitalikXCoord -= this.vitalikSpeed;
+      }
     }
   }
 
@@ -420,7 +556,6 @@ export class CanvasComponent implements OnInit, OnDestroy {
   }
 
   jump() {
-    console.log('jump');
     this.jumping = true;
   }
 
