@@ -206,11 +206,15 @@
 <div class="traits-container">
   <ul>
     <li *ngIf="unisocksHolder" class="walletTraits">Making it rain Unisocks (Hold $SOCKS)</li>
-    <li *ngIf="niftyWealth >= 80" class="walletTraits">4X More Dollah Dollah Bills (Nifty Dude Wealth >= 80)</li>
-    <li *ngIf="niftyWealth >= 50 && niftyWealth < 80" class="walletTraits">2X More Dollah Dollah Bills (Nifty Dude Wealth >= 50)</li>
-    <li *ngIf="niftyWealth < 50 && niftyWealth != null" class="walletTraits">1.5X Less Dollah Dollah Bills (Nifty Dude Wealth < 50)</li>
-    <li *ngIf="niftyHealth >= 80" class="walletTraits"> 2 additional lives (Nifty Dude Health >= 80)</li>
-    <li *ngIf="niftyHealth >= 50 && niftyHealth < 80" class="walletTraits"> 1 live (Nifty Dude Health >= 50)</li>
-    <li *ngIf="niftyPower >= 50" class="walletTraits"> Super Jump (Nifty Dude Power >= 50)</li>
+    <li *ngIf="niftyWealth >= 80" class="walletTraits">4X More Dollah Dollah Bills (Wealth >= 80)</li>
+    <li *ngIf="niftyWealth >= 50 && niftyWealth < 80" class="walletTraits">2X More Dollah Dollah Bills (Wealth >= 50)</li>
+    <li *ngIf="niftyWealth < 50 && niftyWealth != null" class="walletTraits">1.5X Less Dollah Dollah Bills (Wealth < 50)</li>
+    <li *ngIf="niftyHealth >= 80" class="walletTraits"> 2 additional lives (Health >= 80)</li>
+    <li *ngIf="niftyHealth >= 50 && niftyHealth < 80" class="walletTraits"> 1 live (Health >= 50)</li>
+    <li *ngIf="niftyPower >= 50" class="walletTraits"> Super Jump (Power >= 50)</li>
+    <li *ngIf="niftySpeed >= 80" class="walletTraits"> Move fast (Power >= 80)</li>
+    <li *ngIf="niftySpeed < 20 && niftyWealth != null" class="walletTraits"> 2X Slower Speed (Power < 20)</li>
+    <li *ngIf="niftyLuck > 75" class="walletTraits">Powerups last longer (Luck > 75)</li>
+    <li *ngIf="niftyLuck < 20 && niftyLuck != null" class="walletTraits">No powerups (Luck < 20)</li>
   </ul>
 </div>

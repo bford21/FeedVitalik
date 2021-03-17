@@ -79,6 +79,8 @@ export class CanvasComponent implements OnInit, OnDestroy {
   niftyWealth;
   niftyHealth;
   niftyPower;
+  niftySpeed;
+  niftyLuck;
   livesLeft = 0;
   unisocksHolder = false;
 
@@ -148,6 +150,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
     this.sharedService.address$.subscribe(address => {
       this.address = address;
     });
+
     this.sharedService.health$.subscribe(health => {
       this.niftyHealth = health;
       this.setLives();
@@ -158,6 +161,12 @@ export class CanvasComponent implements OnInit, OnDestroy {
     this.sharedService.power$.subscribe(power => {
       this.niftyPower = power;
     });
+    this.sharedService.speed$.subscribe(speed => {
+      this.niftySpeed = speed;
+    });
+    this.sharedService.luck$.subscribe(luck => {
+      this.niftyLuck = luck;
+    })
 
 
     this.context = this.canvas.nativeElement.getContext('2d');
@@ -346,7 +355,11 @@ export class CanvasComponent implements OnInit, OnDestroy {
 
       if (this.powerUpTimer > 0) {
         // Subtract the current rate that drawCanvas is being called
-        this.powerUpTimer -= canvasRedrawRate;
+        if(this.niftyLuck > 75) {
+          this.powerUpTimer -= canvasRedrawRate - 10;
+        } else {
+          this.powerUpTimer -= canvasRedrawRate;
+        }
         this.drawPowerUpMeter();
       } else if (this.powerUpTimer <= 0) {
         // Powerup has ran out of time, reset
@@ -361,20 +374,22 @@ export class CanvasComponent implements OnInit, OnDestroy {
       this.drawWaitingForBlock();
 
       // Create new unicorn if one does not exist
-      if (this.unicorn === undefined) {
+      if (this.unicorn === undefined && this.niftyLuck !== null && this.niftyLuck > 20) {
         this.unicorn = new Unicorn(this.context, this.canvasWidth, this.canvasHeight);
       }
 
-      if (this.checkIfRidingUnicorn(this.unicorn)) {
-        // Only play power up sound once
-        if (this.playPowerUpSound) {
-          this.powerUpSound.emit(true);
-          this.playPowerUpSound = false;
+      if (this.unicorn !== undefined){
+        if (this.checkIfRidingUnicorn(this.unicorn)) {
+          // Only play power up sound once
+          if (this.playPowerUpSound) {
+            this.powerUpSound.emit(true);
+            this.playPowerUpSound = false;
+          }
+          this.powerUpActive = true;
+          this.vitalikSpeed += this.canvasWidth * 0.00055;
+        } else if (this.powerUpActive === false) {
+          this.unicorn.draw();
         }
-        this.powerUpActive = true;
-        this.vitalikSpeed += this.canvasWidth * 0.00055;
-      } else if (this.powerUpActive === false) {
-        this.unicorn.draw();
       }
     }
 
@@ -500,14 +515,31 @@ export class CanvasComponent implements OnInit, OnDestroy {
   }
 
   moveRight() {
+    // let speed = 50;
+    // if(this.niftySpeed >= 80){
+    //   speed = speed + 50
+    // }
     if (this.vitalikXCoord < (this.canvasWidth - 50) ) {
-      this.vitalikXCoord += this.vitalikSpeed;
+      if(this.niftySpeed >= 80) {
+        this.vitalikXCoord += this.vitalikSpeed + 50;
+      }
+      else if(this.niftySpeed < 20 && this.niftySpeed != null) {
+        this.vitalikXCoord += this.vitalikSpeed - 5;
+      } else {
+        this.vitalikXCoord += this.vitalikSpeed;
+      }
     }
   }
 
   moveLeft() {
     if (this.vitalikXCoord > -50) {
-      this.vitalikXCoord -= this.vitalikSpeed;
+      if(this.niftySpeed >= 80) {
+        this.vitalikXCoord -= this.vitalikSpeed + 50;;
+      } else if(this.niftySpeed < 20 && this.niftySpeed != null){
+        this.vitalikXCoord -= (this.vitalikSpeed - 5);
+      } else {
+        this.vitalikXCoord -= this.vitalikSpeed;
+      }
     }
   }
 

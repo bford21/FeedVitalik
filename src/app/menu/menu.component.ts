@@ -23,7 +23,10 @@ export class MenuComponent {
   niftyWealth;
   niftyHealth;
   niftyPower;
+  niftySpeed;
+  niftyLuck;
   feedVitalikIds = []
+  vitalikSkillMap = []
 
   constructor(private web3: Web3Service,
     private sharedService: SharedDataService,
@@ -39,6 +42,10 @@ export class MenuComponent {
       this.getNiftySkills(id);
     });
 
+    this.sharedService.vitalikId$.subscribe(id => {
+      this.getVitalikSkills(id);
+    });
+
     this.sharedService.health$.subscribe(health => {
       this.niftyHealth = health;
     });
@@ -49,6 +56,14 @@ export class MenuComponent {
 
     this.sharedService.power$.subscribe(power => {
       this.niftyPower = power;
+    });
+
+    this.sharedService.speed$.subscribe(speed => {
+      this.niftySpeed = speed;
+    });
+
+    this.sharedService.luck$.subscribe(luck => {
+      this.niftyLuck = luck;
     });
   }
 
@@ -85,26 +100,40 @@ export class MenuComponent {
   }
 
   getFeedVitalikBalance(){
+    const traitNames = ["Health", "Wealth", "Power", "Speed", "Luck"]
     const url = "https://api.opensea.io/api/v1/assets?owner=" + this.address + "&token_ids=104153413670663298601451918013900788479056968112890839500332734933049192480769&token_ids=104153413670663298601451918013900788479056968112890839500332734931949680852993&token_ids=104153413670663298601451918013900788479056968112890839500332734930850169225217&token_ids=104153413670663298601451918013900788479056968112890839500332734929750657597441&token_ids=104153413670663298601451918013900788479056968112890839500332734928651145969665&token_ids=104153413670663298601451918013900788479056968112890839500332734927551634341889&token_ids=104153413670663298601451918013900788479056968112890839500332734926452122714113&token_ids=104153413670663298601451918013900788479056968112890839500332734925352611086337&token_ids=104153413670663298601451918013900788479056968112890839500332734924253099458561&token_ids=104153413670663298601451918013900788479056968112890839500332734923153587830785&token_ids=104153413670663298601451918013900788479056968112890839500332734922054076203009&token_ids=104153413670663298601451918013900788479056968112890839500332734920954564575233&token_ids=104153413670663298601451918013900788479056968112890839500332734919855052947457&token_ids=104153413670663298601451918013900788479056968112890839500332734918755541319681&token_ids=104153413670663298601451918013900788479056968112890839500332734917656029691905&token_ids=104153413670663298601451918013900788479056968112890839500332734916556518064129&token_ids=104153413670663298601451918013900788479056968112890839500332734915457006436353&token_ids=104153413670663298601451918013900788479056968112890839500332734914357494808577&token_ids=104153413670663298601451918013900788479056968112890839500332734913257983180801&token_ids=104153413670663298601451918013900788479056968112890839500332734912158471553025&token_ids=104153413670663298601451918013900788479056968112890839500332734911058959925249&limit=25"
     this.http.get<any>(url).subscribe(data => {
-      console.log(data.assets)
+
       data.assets.forEach(asset => {
+        let vitalikId = null
+
+        // Map opensea token_ids to feed vitalik numbers
         for (var key in tokenMap) {
           if (asset.token_id == key){
-            this.feedVitalikIds.push(tokenMap[key])    
+            this.feedVitalikIds.push(tokenMap[key])
+            vitalikId = tokenMap[key]
           }
         }
+
+        // Get vitalik traits
+        let traits = []
+        asset.traits.forEach(trait => {
+          if(traitNames.includes(trait.trait_type)){
+            traits.push(trait.value)
+          }
+        });
+        this.vitalikSkillMap.push({
+          vitalikId: vitalikId,
+          traits: traits
+        })
       });
       console.log(this.feedVitalikIds)
+      console.log(this.vitalikSkillMap)
     })
   }
 
   getNiftyDudesBalance() {
-    // TODO: Eventually pass in this.address
-
-    // 0x8919014b0f6746407ce40670737bf8aab96f8124
-    // '0x4202c5aa18c934b96bc4aedb3da4593c44076618'
-    this.web3.getNiftyDudes('0x6ca323ab76aa6d0c7406520f49795470662e9c84').then((ids) => {
+    this.web3.getNiftyDudes(this.address).then((ids) => {
       this.niftyIds = ids;
       if(this.niftyIds.length > 0) {
         this.myModal.nativeElement.click();
@@ -116,7 +145,7 @@ export class MenuComponent {
   getUnisocksBalance() {
     // Unisocks test address
     // 0xb3bD6999Bf4B87Cc9E3fEb6eF06A45B356FbfE37
-    this.web3.getUnisocksBalance('0xb3bD6999Bf4B87Cc9E3fEb6eF06A45B356FbfE37').then(balance => {
+    this.web3.getUnisocksBalance(this.address).then(balance => {
       if(balance > 0){
         this.sharedService.unisocksHolder$.next(true);
       }
@@ -128,6 +157,21 @@ export class MenuComponent {
       this.sharedService.wealth$.next(skills[3])
       this.sharedService.health$.next(skills[5])
       this.sharedService.power$.next(skills[1])
+    });
+  }
+
+  getVitalikSkills(id) {
+    // Search through vitalikSkillMap array of object matching on id and assigning traits
+    var char = this.vitalikSkillMap.filter(obj => {
+      return obj.vitalikId === id
+    });
+    char.forEach(item => {
+      console.log(item['traits'])
+      this.sharedService.health$.next(item['traits'][0])
+      this.sharedService.wealth$.next(item['traits'][1])
+      this.sharedService.power$.next(item['traits'][2])
+      this.sharedService.speed$.next(item['traits'][3])
+      this.sharedService.luck$.next(item['traits'][4])
     });
   }
 
