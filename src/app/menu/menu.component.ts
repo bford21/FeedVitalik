@@ -18,6 +18,7 @@ export class MenuComponent {
   background;
   address
   niftyIds = []
+  punksterIds = []
   displayAddress;
   unisocksHolder = false;
   niftyWealth;
@@ -82,6 +83,7 @@ export class MenuComponent {
         this.getNiftyDudesBalance();
         this.getUnisocksBalance();
         this.getFeedVitalikBalance();
+        this.getPunkstersBalance();
       }
     });
   }
@@ -139,6 +141,17 @@ export class MenuComponent {
         this.myModal.nativeElement.click();
         this.char.nativeElement.click();
       }
+    })
+  }
+
+  getPunkstersBalance() {
+    // TODO: Change to this.address
+    this.web3.getPunksters('0x6186290b28d511bff971631c916244a9fc539cfe').then((ids) => {
+      this.punksterIds = ids;
+      // if(this.niftyIds.length > 0) {
+      //   this.myModal.nativeElement.click();
+      //   this.char.nativeElement.click();
+      // }
     })
   }
 
@@ -264,13 +277,16 @@ export class MenuComponent {
     document.getElementById('bg').style.backgroundImage = "url('../assets/Images/backgrounds/bg" + this.background + ".png')"
   }
 
-  setCharacter(id, vitalik=true) {
+  setCharacter(id, vitalik=true, punkster=false) {
     this.clearTraits();
     if (id === null) {
-      this.sharedService.vitalikId$.next(id)
-      this.sharedService.niftyDudeId$.next(id)
+      this.sharedService.vitalikId$.next(id);
+      this.sharedService.niftyDudeId$.next(id);
+      this.sharedService.punksterId$.next(id);
     } else if (vitalik){
       this.sharedService.vitalikId$.next(id)
+    } else if(punkster) {
+      this.sharedService.punksterId$.next(id);
     } else {
       this.sharedService.niftyDudeId$.next(id)
     }

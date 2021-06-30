@@ -6,8 +6,8 @@ import { Unicorn } from '../models/unicorn';
 import { Dollar } from '../models/dollar';
 import { SharedDataService } from '../services/shared.service';
 
-const vitalikWidth = 90;
-const vitalikHeight = 210;
+let vitalikWidth = 90;
+let vitalikHeight = 210;
 const canvasRedrawRate = 15;
 
 export enum KEY_CODE {
@@ -127,6 +127,19 @@ export class CanvasComponent implements OnInit, OnDestroy {
       } else {
         this.vitalikSmile.src = 'https://niftydudes.com/img/dudes/' + id + '.png';
         this.vitalikOpenMouth.src = 'https://niftydudes.com/img/dudes/' + id + '.png';
+      }
+    });
+
+    this.sharedService.punksterId$.subscribe(id => {
+      this.niftyId = id
+      if (id == null) {
+        this.vitalikSmile.src = '../../assets/Images/vitalikSmile_Transparent.png';
+        this.vitalikOpenMouth.src = '../../assets/Images/vitalikOpenMouth_Transparent.png';;
+      } else {
+        vitalikWidth = 210;
+        vitalikHeight = 210;
+        this.vitalikSmile.src = 'https://api.punkbodies.com/get-images/upscaled/0' + id + '.png';
+        this.vitalikOpenMouth.src = 'https://api.punkbodies.com/get-images/upscaled/0' + id + '.png';
       }
     });
 

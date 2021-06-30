@@ -85,6 +85,10 @@
                           <input type="radio" name="background" [value]="id" (click)="setCharacter(id, false)">
                           <img class="niftyImg" src="https://niftydudes.com/img/dudes/{{id}}.png" />
                         </label>
+                        <label *ngFor="let id of punksterIds" class="radio-inline no-margin">
+                          <input type="radio" name="background" [value]="id" (click)="setCharacter(id, false, true)">
+                          <img class="punkImg" src="https://api.punkbodies.com/get-images/upscaled/0{{id}}.png" />
+                        </label>
                       </div>
                     </div>
 
