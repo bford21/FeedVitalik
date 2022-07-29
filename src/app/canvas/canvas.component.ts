@@ -75,6 +75,7 @@ export class CanvasComponent implements OnInit, OnDestroy {
 
   // Wallet Variables
   address;
+  dickButtId;
   niftyId;
   niftyWealth;
   niftyHealth;
@@ -127,6 +128,17 @@ export class CanvasComponent implements OnInit, OnDestroy {
       } else {
         this.vitalikSmile.src = 'https://niftydudes.com/img/dudes/' + id + '.png';
         this.vitalikOpenMouth.src = 'https://niftydudes.com/img/dudes/' + id + '.png';
+      }
+    });
+
+    this.sharedService.dickButtId$.subscribe(id => {
+      this.dickButtId = id
+      if (id == null) {
+        this.vitalikSmile.src = '../../assets/Images/vitalikSmile_Transparent.png';
+        this.vitalikOpenMouth.src = '../../assets/Images/vitalikOpenMouth_Transparent.png';;
+      } else {
+        this.vitalikSmile.src = '../../assets/Images/dickbutts/160.png';
+        this.vitalikOpenMouth.src = '../../assets/Images/dickbutts/160.png';
       }
     });
 
