@@ -18,6 +18,7 @@ export class MenuComponent {
   background;
   address
   niftyIds = []
+  dickButtIds = []
   displayAddress;
   unisocksHolder = false;
   niftyWealth;
@@ -82,6 +83,7 @@ export class MenuComponent {
         this.getNiftyDudesBalance();
         this.getUnisocksBalance();
         this.getFeedVitalikBalance();
+        this.getDickButtBalance();
       }
     });
   }
@@ -136,6 +138,17 @@ export class MenuComponent {
     this.web3.getNiftyDudes(this.address).then((ids) => {
       this.niftyIds = ids;
       if(this.niftyIds.length > 0) {
+        this.myModal.nativeElement.click();
+        this.char.nativeElement.click();
+      }
+    })
+  }
+
+  getDickButtBalance(){
+    this.web3.getDickButts(this.address).then((ids) => {
+      this.dickButtIds = ids;
+      console.log("DICKBUTT IDS: ", this.dickButtIds);
+      if(this.dickButtIds.length > 0) {
         this.myModal.nativeElement.click();
         this.char.nativeElement.click();
       }
@@ -269,10 +282,12 @@ export class MenuComponent {
     if (id === null) {
       this.sharedService.vitalikId$.next(id)
       this.sharedService.niftyDudeId$.next(id)
+      this.sharedService.dickButtId$.next(id)
     } else if (vitalik){
       this.sharedService.vitalikId$.next(id)
     } else {
-      this.sharedService.niftyDudeId$.next(id)
+      // this.sharedService.niftyDudeId$.next(id)
+      this.sharedService.dickButtId$.next(id)
     }
   }
 

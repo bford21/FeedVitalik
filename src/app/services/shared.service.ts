@@ -5,6 +5,7 @@ import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
   providedIn: 'root'
 })
 export class SharedDataService {
+  dickButtId$ = new BehaviorSubject<string>(null);
   niftyDudeId$ = new BehaviorSubject<string>(null);
   vitalikId$ = new BehaviorSubject<string>(null);
   health$ = new BehaviorSubject<number>(null);
